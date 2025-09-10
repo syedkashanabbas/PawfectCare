@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "861316356123",
-    "project_id": "pawfectcare-techwiz",
-    "storage_bucket": "pawfectcare-techwiz.firebasestorage.app"
+    "project_number": "542867718925",
+    "project_id": "pawfectcare-1234",
+    "storage_bucket": "pawfectcare-1234.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:861316356123:android:55a8820cd1d9c8bcdd00be",
+        "mobilesdk_app_id": "1:542867718925:android:649dcbcab235c7d51d2644",
         "android_client_info": {
           "package_name": "com.techwiz.pawfectcare"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAFVskmsjwhpHhP34fi-Cm6KUsC3QtIol4"
+          "current_key": "AIzaSyC0sC4f4XelbC8QX86qx245NBaEp44BuLk"
         }
       ],
       "services": {
