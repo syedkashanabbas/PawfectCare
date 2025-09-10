@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
 
-class signup extends StatelessWidget {
-  const signup({super.key});
+class Signup extends StatefulWidget {
+  const Signup({super.key});
+
+  @override
+  State<Signup> createState() => _SignupState();
+}
+
+class _SignupState extends State<Signup> {
+  String? selectedRole;
 
   @override
   Widget build(BuildContext context) {
@@ -50,12 +57,35 @@ class signup extends StatelessWidget {
                     icon: Icons.lock,
                     obscure: true,
                   ),
+                  const SizedBox(height: 16),
+                  DropdownButtonFormField<String>(
+                    value: selectedRole,
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: Colors.grey[200],
+                      hintText: "Select Role",
+                      prefixIcon: Icon(Icons.person_pin_circle, color: Colors.grey[600]),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(6),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                    items: const [
+                      DropdownMenuItem(value: 'Pet Owner', child: Text('Pet Owner')),
+                      DropdownMenuItem(value: 'Veterinarian', child: Text('Veterinarian')),
+                    ],
+                    onChanged: (value) {
+                      setState(() {
+                        selectedRole = value!;
+                      });
+                    },
+                  ),
                   const SizedBox(height: 20),
                   ElevatedButton(
                     onPressed: () {
-                      // Implement your signup logic here
+                      // Signup logic with role
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Account created successfully")),
+                        SnackBar(content: Text("Account created as $selectedRole")),
                       );
                     },
                     style: ElevatedButton.styleFrom(

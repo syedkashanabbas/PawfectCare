@@ -22,25 +22,25 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFF65C057), // green background
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Lottie animation (download any JSON from lottiefiles.com)
-            Lottie.asset("assets/animations/paw.json", width: 200, height: 200),
-            
-            const SizedBox(height: 30),
-
-            // Extra loader for style
-            const SpinKitFadingCube(
-              color: Colors.deepPurple,
-              size: 40,
+            Image.asset(
+              "assets/images/splash.png",
+              height: 200,
             ),
-
-            const SizedBox(height: 10),
-            const Text("Loading PawfectCare...",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
+            const SizedBox(height: 30),
+            const Text(
+              'LOADING',
+              style: TextStyle(
+                fontSize: 20,
+                letterSpacing: 2,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
+            ),
           ],
         ),
       ),
