@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:pawfectcare/homepage.dart';
+import 'package:pawfectcare/splash_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -11,12 +13,11 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        appBar: AppBar(title: const Text("My Pet App")),
-        body: const Center(
-          child: Text("Hello Flutter!"),
-        ),
-      ),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const SplashScreen(),
+        '/home': (context) => const HomePage(),
+      },
     );
   }
 }
