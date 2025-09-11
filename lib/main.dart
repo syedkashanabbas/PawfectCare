@@ -14,6 +14,8 @@ import 'package:pawfectcare/auth/login.dart';
 import 'package:pawfectcare/auth/signup.dart';
 import 'package:pawfectcare/auth/splash_screen.dart';
 import 'package:pawfectcare/auth/welcomeScreen.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 
 void main() {
