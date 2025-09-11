@@ -43,7 +43,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
         if (mounted) {
           if (role == "Super Admin") {
-            Navigator.pushReplacementNamed(context, "/shelterdashboard");
+            Navigator.pushReplacementNamed(context, "/volunteer");
           } else if (role == "Veterinarian") {
             Navigator.pushReplacementNamed(context, "/vetdashboard");
           } else if (role == "Pet Owner") {
