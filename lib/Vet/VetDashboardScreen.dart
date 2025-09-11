@@ -35,7 +35,12 @@ class VetDashboardScreen extends StatelessWidget {
                 child: ListView(
                   scrollDirection: Axis.horizontal,
                   children: [
-                    _petCard("Bella", "Golden Retriever", "2y", "assets/pet1.png"),
+                    _petCard(
+                      "Bella",
+                      "Golden Retriever",
+                      "2y",
+                      "assets/pet.jpg",
+                    ),
                     _petCard("Max", "Pug", "5y", "assets/pet2.png"),
                   ],
                 ),
@@ -62,8 +67,10 @@ class VetDashboardScreen extends StatelessWidget {
   Widget _sectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
-      child: Text(title,
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+      child: Text(
+        title,
+        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+      ),
     );
   }
 
@@ -72,7 +79,9 @@ class VetDashboardScreen extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: ListTile(
-        leading: const CircleAvatar(backgroundImage: AssetImage("assets/pet1.png")),
+        leading: const CircleAvatar(
+          backgroundImage: AssetImage("assets/pet.jpg"),
+        ),
         title: Text("$pet - $time"),
         subtitle: Text("Owner: $owner"),
         trailing: const Icon(Icons.arrow_forward_ios, size: 16),
@@ -109,8 +118,9 @@ class VetDashboardScreen extends StatelessWidget {
         foregroundColor: Colors.black87,
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
         shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-            side: const BorderSide(color: Colors.grey)),
+          borderRadius: BorderRadius.circular(12),
+          side: const BorderSide(color: Colors.grey),
+        ),
       ),
       onPressed: () {},
       icon: Icon(icon),

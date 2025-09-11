@@ -75,7 +75,7 @@ class _SignupState extends State<Signup> {
         ),
       );
 
-      Navigator.pushReplacementNamed(context, "/home");
+      Navigator.pushReplacementNamed(context, "/login");
     } on FirebaseAuthException catch (e) {
       debugPrint("❌ FirebaseAuth error: ${e.code} | ${e.message}");
       ScaffoldMessenger.of(
@@ -139,7 +139,7 @@ class _SignupState extends State<Signup> {
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: Colors.grey[200],
-                  hintText: "Select Role",
+                  hintText: "What best describes you?",
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(6),
                     borderSide: BorderSide.none,

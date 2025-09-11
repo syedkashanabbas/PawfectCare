@@ -11,21 +11,21 @@ class PetListingScreen extends StatelessWidget {
         'species': 'Dog',
         'breed': 'Golden Retriever',
         'age': '2 years',
-        'image': 'assets/pet1.png',
+        'image': 'assets/pet.jpg',
       },
       {
         'name': 'Bella',
         'species': 'Cat',
         'breed': 'Persian',
         'age': '3 years',
-        'image': 'assets/pet2.png',
+        'image': 'assets/pet.jpg',
       },
       {
         'name': 'Max',
         'species': 'Dog',
         'breed': 'Labrador',
         'age': '5 years',
-        'image': 'assets/pet3.png',
+        'image': 'assets/pet.jpg',
       },
     ];
 
@@ -73,13 +73,16 @@ class PetListingScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           const SizedBox(height: 10),
-          CircleAvatar(
-            radius: 40,
-            backgroundImage: AssetImage(pet['image']!),
-          ),
+          CircleAvatar(radius: 40, backgroundImage: AssetImage(pet['image']!)),
           const SizedBox(height: 8),
-          Text(pet['name']!, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-          Text(pet['species']! + " • " + pet['breed']!, style: const TextStyle(fontSize: 12)),
+          Text(
+            pet['name']!,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          ),
+          Text(
+            pet['species']! + " • " + pet['breed']!,
+            style: const TextStyle(fontSize: 12),
+          ),
           Text(pet['age']!, style: const TextStyle(fontSize: 12)),
           const Spacer(),
           TextButton(
