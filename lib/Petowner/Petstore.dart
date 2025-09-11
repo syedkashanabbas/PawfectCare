@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pawfectcare/Petowner/PetOwnerDrawer.dart';
 
 class PetStoreScreen extends StatelessWidget {
   const PetStoreScreen({super.key});
@@ -39,6 +40,7 @@ class PetStoreScreen extends StatelessWidget {
             ],
           ),
         ),
+        drawer: const PetOwnerDrawer(),
         body: TabBarView(
           children: [
             _buildMapPlaceholder(),

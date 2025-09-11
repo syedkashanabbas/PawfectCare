@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pawfectcare/Petowner/PetOwnerDrawer.dart';
 
 class BlogListScreen extends StatelessWidget {
   const BlogListScreen({super.key});
@@ -31,7 +32,7 @@ class BlogListScreen extends StatelessWidget {
         title: const Text("Pet Care Blogs", style: TextStyle(color: Colors.white)),
         leading: const BackButton(color: Colors.white),
       ),
-
+      drawer: const PetOwnerDrawer(),
       body: ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: blogs.length,

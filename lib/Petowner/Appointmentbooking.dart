@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pawfectcare/Petowner/PetOwnerDrawer.dart';
 
 class BookAppointmentScreen extends StatefulWidget {
   const BookAppointmentScreen({super.key});
@@ -27,7 +28,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
         leading: const BackButton(color: Colors.white),
         title: const Text("Dr. Nambuvan", style: TextStyle(color: Colors.white)),
       ),
-
+      drawer: const PetOwnerDrawer(),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(

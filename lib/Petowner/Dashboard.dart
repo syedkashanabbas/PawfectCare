@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pawfectcare/Petowner/PetOwnerDrawer.dart';
 import 'package:pawfectcare/auth_service.dart';
 
 class PetOwnerDashboard extends StatelessWidget {
@@ -27,6 +28,7 @@ class PetOwnerDashboard extends StatelessWidget {
           ),
         ],
       ),
+      drawer: const PetOwnerDrawer(),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(

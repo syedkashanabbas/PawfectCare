@@ -78,9 +78,6 @@ class MyApp extends StatelessWidget {
         '/medicalrecord': (context) => const MedicalRecordScreen(),
         '/adddiagnosis': (context) => const AddDiagnosisScreen(),
         '/uploadmedicalfiles': (context) => const UploadMedicalFilesScreen(),
-
-
-
       },
     );
   }

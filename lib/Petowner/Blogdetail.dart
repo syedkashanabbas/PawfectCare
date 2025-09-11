@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pawfectcare/Petowner/PetOwnerDrawer.dart';
 
 class BlogDetailScreen extends StatelessWidget {
   final String title;
@@ -36,7 +37,7 @@ class BlogDetailScreen extends StatelessWidget {
           ),
         ],
       ),
-
+      drawer: const PetOwnerDrawer(),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pawfectcare/Petowner/PetOwnerDrawer.dart';
 
 class PetProfileListScreen extends StatelessWidget {
   const PetProfileListScreen({super.key});
@@ -12,6 +13,7 @@ class PetProfileListScreen extends StatelessWidget {
         title: const Text('My Pets'),
         elevation: 0,
       ),
+      drawer: const PetOwnerDrawer(),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [

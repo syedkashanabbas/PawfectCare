@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:pawfectcare/Petowner/PetOwnerDrawer.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:firebase_database/firebase_database.dart';
 
@@ -78,6 +79,7 @@ class _AddEditPetProfileScreenState extends State<AddEditPetProfileScreen>
         title: Text(widget.isEditing ? 'Edit Pet' : 'Add New Pet'),
         elevation: 0,
       ),
+      drawer: const PetOwnerDrawer(),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Form(
