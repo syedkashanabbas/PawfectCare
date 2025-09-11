@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pawfectcare/auth/forgotPassword.dart';
 
 class login extends StatelessWidget {
   const login({super.key});
@@ -43,7 +44,14 @@ class login extends StatelessWidget {
                   Align(
                     alignment: Alignment.centerRight,
                     child: TextButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const ForgotPassword(),
+                          ),
+                        );
+                      },
                       child: const Text(
                         'Forget Password?',
                         style: TextStyle(
@@ -52,6 +60,7 @@ class login extends StatelessWidget {
                         ),
                       ),
                     ),
+
                   ),
                   const SizedBox(height: 8),
                   ElevatedButton(

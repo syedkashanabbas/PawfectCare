@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:pawfectcare/login.dart';
-import 'package:pawfectcare/signup.dart';
+import 'package:pawfectcare/auth/login.dart';
+import 'package:pawfectcare/auth/signup.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
