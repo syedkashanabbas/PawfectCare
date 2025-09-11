@@ -1,8 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:pawfectcare/auth/forgotPassword.dart';
+import 'package:pawfectcare/auth_service.dart'; // <-- banai hui AuthService import karna
 
-class login extends StatelessWidget {
+class login extends StatefulWidget {
   const login({super.key});
+
+  @override
+  State<login> createState() => _LoginState();
+}
+
+class _LoginState extends State<login> {
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final AuthService _authService = AuthService();
+
+  bool isLoading = false;
+
+  void _login() async {
+    setState(() => isLoading = true);
+    try {
+      final user = await _authService.loginUser(
+        emailController.text.trim(),
+        passwordController.text.trim(),
+      );
+
+      if (user != null) {
+        Navigator.pushReplacementNamed(context, '/petownerdashboard');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Login Failed: $e")),
+      );
+    }
+    setState(() => isLoading = false);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,12 +61,14 @@ class login extends StatelessWidget {
                     height: 120,
                   ),
                   const SizedBox(height: 20),
-                  const CustomTextField(
+                  CustomTextField(
+                    controller: emailController,
                     hintText: 'Email Address',
                     icon: Icons.email_outlined,
                   ),
                   const SizedBox(height: 16),
-                  const CustomTextField(
+                  CustomTextField(
+                    controller: passwordController,
                     hintText: 'Password',
                     icon: Icons.lock_outline,
                     obscure: true,
@@ -60,11 +93,10 @@ class login extends StatelessWidget {
                         ),
                       ),
                     ),
-
                   ),
                   const SizedBox(height: 8),
                   ElevatedButton(
-                    onPressed: () {},
+                    onPressed: _login,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.teal,
                       minimumSize: const Size.fromHeight(50),
@@ -72,13 +104,15 @@ class login extends StatelessWidget {
                         borderRadius: BorderRadius.circular(6),
                       ),
                     ),
-                    child: const Text(
-                      'LOGIN',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
+                    child: isLoading
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Text(
+                            'LOGIN',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
                   ),
                   const SizedBox(height: 24),
                   const Text('or connect with'),
@@ -115,21 +149,25 @@ class login extends StatelessWidget {
   }
 }
 
+// ✅ Updated CustomTextField with controller support
 class CustomTextField extends StatelessWidget {
   final String hintText;
   final IconData icon;
   final bool obscure;
+  final TextEditingController? controller;
 
   const CustomTextField({
     super.key,
     required this.hintText,
     required this.icon,
     this.obscure = false,
+    this.controller,
   });
 
   @override
   Widget build(BuildContext context) {
     return TextField(
+      controller: controller,
       obscureText: obscure,
       decoration: InputDecoration(
         prefixIcon: Icon(icon, color: Colors.grey[600]),
@@ -163,7 +201,7 @@ class SocialLoginButton extends StatelessWidget {
       icon: Icon(icon, color: Colors.white),
       label: Text(
         label,
-        style: const TextStyle(color: Colors.white), // Force white text
+        style: const TextStyle(color: Colors.white),
       ),
       onPressed: () {},
       style: ElevatedButton.styleFrom(
@@ -176,4 +214,3 @@ class SocialLoginButton extends StatelessWidget {
     );
   }
 }
-
