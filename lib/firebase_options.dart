@@ -46,6 +46,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '542867718925',
     projectId: 'pawfectcare-1234',
     authDomain: 'pawfectcare-1234.firebaseapp.com',
+    databaseURL: 'https://pawfectcare-1234-default-rtdb.firebaseio.com',
     storageBucket: 'pawfectcare-1234.firebasestorage.app',
   );
 
@@ -54,25 +55,28 @@ class DefaultFirebaseOptions {
     appId: '1:542867718925:android:649dcbcab235c7d51d2644',
     messagingSenderId: '542867718925',
     projectId: 'pawfectcare-1234',
+    databaseURL: 'https://pawfectcare-1234-default-rtdb.firebaseio.com',
     storageBucket: 'pawfectcare-1234.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyCRC7M-kERF3K2IGODdss1nmJ0UD4HZh04',
-    appId: '1:542867718925:ios:cbbb72420654e53c1d2644',
+    appId: '1:542867718925:ios:33968e45199019801d2644',
     messagingSenderId: '542867718925',
     projectId: 'pawfectcare-1234',
+    databaseURL: 'https://pawfectcare-1234-default-rtdb.firebaseio.com',
     storageBucket: 'pawfectcare-1234.firebasestorage.app',
-    iosBundleId: 'com.techwiz.pawfectcare',
+    iosBundleId: 'com.example.pawfectcare',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyCRC7M-kERF3K2IGODdss1nmJ0UD4HZh04',
-    appId: '1:542867718925:ios:cbbb72420654e53c1d2644',
+    appId: '1:542867718925:ios:33968e45199019801d2644',
     messagingSenderId: '542867718925',
     projectId: 'pawfectcare-1234',
+    databaseURL: 'https://pawfectcare-1234-default-rtdb.firebaseio.com',
     storageBucket: 'pawfectcare-1234.firebasestorage.app',
-    iosBundleId: 'com.techwiz.pawfectcare',
+    iosBundleId: 'com.example.pawfectcare',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
@@ -81,6 +85,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '542867718925',
     projectId: 'pawfectcare-1234',
     authDomain: 'pawfectcare-1234.firebaseapp.com',
+    databaseURL: 'https://pawfectcare-1234-default-rtdb.firebaseio.com',
     storageBucket: 'pawfectcare-1234.firebasestorage.app',
   );
+
 }

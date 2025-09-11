@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Signup extends StatefulWidget {
   const Signup({super.key});
@@ -8,131 +10,180 @@ class Signup extends StatefulWidget {
 }
 
 class _SignupState extends State<Signup> {
+  // Controllers
+  final nameCtrl = TextEditingController();
+  final emailCtrl = TextEditingController();
+  final passCtrl = TextEditingController();
+  final confirmCtrl = TextEditingController();
+
   String? selectedRole;
+  bool isLoading = false;
+
+  @override
+  void dispose() {
+    // Dispose controllers to avoid memory leaks
+    nameCtrl.dispose();
+    emailCtrl.dispose();
+    passCtrl.dispose();
+    confirmCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _signup() async {
+    if (selectedRole == null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Please select a role")));
+      return;
+    }
+    if (passCtrl.text != confirmCtrl.text) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Passwords do not match")));
+      return;
+    }
+
+    try {
+      setState(() => isLoading = true);
+
+      // Create Firebase user
+      UserCredential userCred = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(
+            email: emailCtrl.text.trim(),
+            password: passCtrl.text.trim(),
+          );
+
+      debugPrint(
+        "✅ User created: ${userCred.user?.uid} ${userCred.user?.email}",
+      );
+
+      // Save extra info to Firestore
+      await FirebaseFirestore.instance
+          .collection("users")
+          .doc(userCred.user!.uid)
+          .set({
+            "name": nameCtrl.text.trim(),
+            "email": emailCtrl.text.trim(),
+            "role": selectedRole,
+            "createdAt": DateTime.now(),
+          });
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Welcome ${nameCtrl.text}, role: $selectedRole"),
+        ),
+      );
+
+      Navigator.pushReplacementNamed(context, "/home");
+    } on FirebaseAuthException catch (e) {
+      debugPrint("❌ FirebaseAuth error: ${e.code} | ${e.message}");
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Auth error: ${e.code}")));
+    } catch (e, stack) {
+      debugPrint("❌ General error: $e\n$stack");
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Error: $e")));
+    } finally {
+      setState(() => isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Stack(
-        children: [
-          Positioned.fill(
-            child: Opacity(
-              opacity: 0.1,
-              child: Image.asset(
-                "assets/images/bg.png",
-                fit: BoxFit.contain,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            children: [
+              const SizedBox(height: 50),
+              Image.asset("assets/images/coco.png", height: 120),
+              const SizedBox(height: 20),
+
+              CustomTextField(
+                controller: nameCtrl,
+                hintText: 'Full Name',
+                icon: Icons.person_outline,
               ),
-            ),
-          ),
-          SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Column(
-                children: [
-                  const SizedBox(height: 50),
-                  Image.asset(
-                    "assets/images/coco.png",
-                    height: 120,
+              const SizedBox(height: 16),
+
+              CustomTextField(
+                controller: emailCtrl,
+                hintText: 'Email Address',
+                icon: Icons.email_outlined,
+              ),
+              const SizedBox(height: 16),
+
+              CustomTextField(
+                controller: passCtrl,
+                hintText: 'Password',
+                icon: Icons.lock_outline,
+                obscure: true,
+              ),
+              const SizedBox(height: 16),
+
+              CustomTextField(
+                controller: confirmCtrl,
+                hintText: 'Confirm Password',
+                icon: Icons.lock,
+                obscure: true,
+              ),
+              const SizedBox(height: 16),
+
+              DropdownButtonFormField<String>(
+                value: selectedRole,
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: Colors.grey[200],
+                  hintText: "Select Role",
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(6),
+                    borderSide: BorderSide.none,
                   ),
-                  const SizedBox(height: 20),
-                  const CustomTextField(
-                    hintText: 'Full Name',
-                    icon: Icons.person_outline,
+                ),
+                items: const [
+                  DropdownMenuItem(
+                    value: 'Pet Owner',
+                    child: Text('Pet Owner'),
                   ),
-                  const SizedBox(height: 16),
-                  const CustomTextField(
-                    hintText: 'Email Address',
-                    icon: Icons.email_outlined,
-                  ),
-                  const SizedBox(height: 16),
-                  const CustomTextField(
-                    hintText: 'Password',
-                    icon: Icons.lock_outline,
-                    obscure: true,
-                  ),
-                  const SizedBox(height: 16),
-                  const CustomTextField(
-                    hintText: 'Confirm Password',
-                    icon: Icons.lock,
-                    obscure: true,
-                  ),
-                  const SizedBox(height: 16),
-                  DropdownButtonFormField<String>(
-                    value: selectedRole,
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: Colors.grey[200],
-                      hintText: "Select Role",
-                      prefixIcon: Icon(Icons.person_pin_circle, color: Colors.grey[600]),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(6),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
-                    items: const [
-                      DropdownMenuItem(value: 'Pet Owner', child: Text('Pet Owner')),
-                      DropdownMenuItem(value: 'Veterinarian', child: Text('Veterinarian')),
-                    ],
-                    onChanged: (value) {
-                      setState(() {
-                        selectedRole = value!;
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: () {
-                      // Signup logic with role
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("Account created as $selectedRole")),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.teal,
-                      minimumSize: const Size.fromHeight(50),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                    ),
-                    child: const Text(
-                      'SIGN UP',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  const Text('or connect with'),
-                  const SizedBox(height: 16),
-                  const SocialLoginButton(
-                    icon: Icons.g_mobiledata,
-                    label: 'Signup With Google',
-                    color: Colors.teal,
-                  ),
-                  const SizedBox(height: 12),
-                  const SocialLoginButton(
-                    icon: Icons.facebook,
-                    label: 'Signup With Facebook',
-                    color: Colors.teal,
-                  ),
-                  const SizedBox(height: 12),
-                  const SocialLoginButton(
-                    icon: Icons.apple,
-                    label: 'Signup With Apple',
-                    color: Colors.teal,
-                  ),
-                  const SizedBox(height: 40),
-                  const Text(
-                    '© All Rights Reserved to Pawfect Care - 2025',
-                    style: TextStyle(fontSize: 12, color: Colors.grey),
+                  DropdownMenuItem(
+                    value: 'Veterinarian',
+                    child: Text('Veterinarian'),
                   ),
                 ],
+                onChanged: (value) => setState(() => selectedRole = value),
               ),
-            ),
+              const SizedBox(height: 20),
+
+              ElevatedButton(
+                onPressed: isLoading ? null : _signup,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.teal,
+                  minimumSize: const Size.fromHeight(50),
+                ),
+                child: isLoading
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : const Text(
+                        'SIGN UP',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+              ),
+              const SizedBox(height: 40),
+
+              const Text(
+                '© All Rights Reserved to Pawfect Care - 2025',
+                style: TextStyle(fontSize: 12, color: Colors.grey),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -142,17 +193,20 @@ class CustomTextField extends StatelessWidget {
   final String hintText;
   final IconData icon;
   final bool obscure;
+  final TextEditingController controller;
 
   const CustomTextField({
     super.key,
     required this.hintText,
     required this.icon,
+    required this.controller,
     this.obscure = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return TextField(
+      controller: controller,
       obscureText: obscure,
       decoration: InputDecoration(
         prefixIcon: Icon(icon, color: Colors.grey[600]),
@@ -162,38 +216,6 @@ class CustomTextField extends StatelessWidget {
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(6),
           borderSide: BorderSide.none,
-        ),
-      ),
-    );
-  }
-}
-
-class SocialLoginButton extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final Color color;
-
-  const SocialLoginButton({
-    super.key,
-    required this.icon,
-    required this.label,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ElevatedButton.icon(
-      icon: Icon(icon, color: Colors.white),
-      label: Text(
-        label,
-        style: const TextStyle(color: Colors.white),
-      ),
-      onPressed: () {},
-      style: ElevatedButton.styleFrom(
-        backgroundColor: color,
-        minimumSize: const Size.fromHeight(50),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(6),
         ),
       ),
     );

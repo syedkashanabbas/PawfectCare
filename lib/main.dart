@@ -11,8 +11,15 @@ import 'package:pawfectcare/auth/login.dart';
 import 'package:pawfectcare/auth/signup.dart';
 import 'package:pawfectcare/auth/splash_screen.dart';
 import 'package:pawfectcare/auth/welcomeScreen.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-void main() {
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const MyApp());
 }
 
