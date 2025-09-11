@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 class ShelterDashboardScreen extends StatelessWidget {
   const ShelterDashboardScreen({super.key});
@@ -18,16 +20,17 @@ class ShelterDashboardScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            _buildStatCard("Total Pets", "24", Icons.pets, Colors.orange),
+            _buildUserCountCard("Total PetOwners", "Pet Owner", Icons.people, Colors.orange),
             const SizedBox(height: 16),
-            _buildStatCard("Adoption Requests", "12", Icons.assignment, Colors.blue),
+            _buildPetsCountCard("Total Pets", Icons.pets, Colors.blue),
             const SizedBox(height: 16),
-            _buildStatCard("Approved Adoptions", "8", Icons.check_circle, Colors.green),
+            _buildStatCard("Total Feedback", "-", Icons.feedback, Colors.pink), // empty for now
             const SizedBox(height: 16),
-            _buildStatCard("Success Stories", "5", Icons.star, Colors.purple),
+            _buildUserCountCard("Total Veterinarians", "Veterinarian", Icons.medical_services, Colors.green),
+            const SizedBox(height: 16),
+            _buildStatCard("Today Appointments", "-", Icons.calendar_month, Colors.purple), // empty for now
             const SizedBox(height: 24),
 
-            // Quick Actions
             Align(
               alignment: Alignment.centerLeft,
               child: Text("Quick Actions",
@@ -61,6 +64,35 @@ class ShelterDashboardScreen extends StatelessWidget {
           BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
         ],
       ),
+    );
+  }
+
+  /// Firestore count by role (PetOwner / Veterinarian)
+  Widget _buildUserCountCard(String title, String role, IconData icon, Color color) {
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance.collection("users").where("role", isEqualTo: role).snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return _buildStatCard(title, "...", icon, color);
+        }
+        final count = snapshot.data!.docs.length.toString();
+        return _buildStatCard(title, count, icon, color);
+      },
+    );
+  }
+
+  /// Realtime DB pets count
+  Widget _buildPetsCountCard(String title, IconData icon, Color color) {
+    return StreamBuilder(
+      stream: FirebaseDatabase.instance.ref("pets").onValue,
+      builder: (context, snapshot) {
+        if (!snapshot.hasData || snapshot.data!.snapshot.value == null) {
+          return _buildStatCard(title, "0", icon, color);
+        }
+        final petsMap = Map<dynamic, dynamic>.from(snapshot.data!.snapshot.value as Map);
+        final totalPets = petsMap.length.toString();
+        return _buildStatCard(title, totalPets, icon, color);
+      },
     );
   }
 

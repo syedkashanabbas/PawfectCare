@@ -5,7 +5,8 @@ class AppointmentCalendarScreen extends StatefulWidget {
   const AppointmentCalendarScreen({super.key});
 
   @override
-  State<AppointmentCalendarScreen> createState() => _AppointmentCalendarScreenState();
+  State<AppointmentCalendarScreen> createState() =>
+      _AppointmentCalendarScreenState();
 }
 
 class _AppointmentCalendarScreenState extends State<AppointmentCalendarScreen> {
@@ -18,10 +19,7 @@ class _AppointmentCalendarScreenState extends State<AppointmentCalendarScreen> {
       backgroundColor: const Color(0xFFEFFAF0),
       appBar: AppBar(
         backgroundColor: const Color(0xFF4CAF50),
-        title: const Text(
-          'My Calendar',
-          style: TextStyle(color: Colors.white),
-        ),
+        title: const Text('My Calendar', style: TextStyle(color: Colors.white)),
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: Padding(
@@ -80,7 +78,7 @@ class _AppointmentCalendarScreenState extends State<AppointmentCalendarScreen> {
       elevation: 2,
       child: ListTile(
         leading: const CircleAvatar(
-          backgroundImage: AssetImage("assets/pet1.png"), // Placeholder image
+          backgroundImage: AssetImage("assets/pet.jpg"), // Placeholder image
         ),
         title: Text("$pet - $time"),
         subtitle: Text("Owner: $owner"),

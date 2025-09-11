@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:pawfectcare/Petowner/PetOwnerDrawer.dart';
 import 'package:pawfectcare/auth_service.dart';
+import 'package:pawfectcare/Petowner/Add_edit.dart';
 
 class PetOwnerDashboard extends StatelessWidget {
   const PetOwnerDashboard({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
@@ -19,11 +24,8 @@ class PetOwnerDashboard extends StatelessWidget {
             icon: const Icon(Icons.logout),
             tooltip: "Logout",
             onPressed: () async {
-              await AuthService().logoutUser(); // sign out from Firebase
-              Navigator.pushReplacementNamed(
-                context,
-                "/login",
-              ); // go back to login screen
+              await AuthService().logoutUser();
+              Navigator.pushReplacementNamed(context, "/login");
             },
           ),
         ],
@@ -34,7 +36,7 @@ class PetOwnerDashboard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _myPetsSection(),
+            _myPetsSection(userId),
             const SizedBox(height: 16),
             _locationAndStatusSection(),
             const SizedBox(height: 16),
@@ -64,7 +66,9 @@ class PetOwnerDashboard extends StatelessWidget {
     );
   }
 
-  Widget _myPetsSection() {
+  Widget _myPetsSection(String? userId) {
+    final dbRef = FirebaseDatabase.instance.ref("pets");
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -74,14 +78,42 @@ class PetOwnerDashboard extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         SizedBox(
-          height: 90,
-          child: ListView(
-            scrollDirection: Axis.horizontal,
-            children: [
-              _petAvatar('Bello', 'https://i.imgur.com/1.jpg'),
-              _petAvatar('Rowdy', 'https://i.imgur.com/2.jpg'),
-              _petAvatar('Furry', 'https://i.imgur.com/3.jpg'),
-            ],
+          height: 110,
+          child: StreamBuilder(
+            stream: dbRef.orderByChild("ownerId").equalTo(userId).onValue,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (!snapshot.hasData || snapshot.data!.snapshot.value == null) {
+                return Row(
+                  children: [
+                    _addPetButton(context),
+                  ],
+                );
+              }
+
+              final petsMap = Map<dynamic, dynamic>.from(
+                snapshot.data!.snapshot.value as Map,
+              );
+
+              final pets = petsMap.values.toList();
+
+              return ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: pets.length + 1, // +1 for Add button
+                itemBuilder: (context, index) {
+                  if (index == pets.length) {
+                    return _addPetButton(context);
+                  }
+                  final pet = Map<String, dynamic>.from(pets[index]);
+                  return _petAvatar(
+                    pet['name'] ?? "Pet",
+                    pet['imageUrl'] ?? "",
+                  ).paddingSymmetric(horizontal: 10);
+                },
+              );
+            },
           ),
         ),
       ],
@@ -91,10 +123,41 @@ class PetOwnerDashboard extends StatelessWidget {
   Widget _petAvatar(String name, String imageUrl) {
     return Column(
       children: [
-        CircleAvatar(radius: 28, backgroundImage: NetworkImage(imageUrl)),
+        CircleAvatar(
+          radius: 28,
+          backgroundImage:
+              imageUrl.isNotEmpty ? NetworkImage(imageUrl) : null,
+          child: imageUrl.isEmpty
+              ? const Icon(Icons.pets, size: 28, color: Colors.grey)
+              : null,
+        ),
         const SizedBox(height: 4),
         Text(name),
       ],
+    );
+  }
+
+  Widget _addPetButton(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const AddEditPetProfileScreen(),
+          ),
+        );
+      },
+      child: Column(
+        children: [
+          CircleAvatar(
+            radius: 28,
+            backgroundColor: Colors.green[100],
+            child: Icon(Icons.add, color: Colors.green[700]),
+          ),
+          const SizedBox(height: 4),
+          const Text("Add"),
+        ],
+      ),
     ).paddingSymmetric(horizontal: 10);
   }
 

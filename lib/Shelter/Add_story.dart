@@ -1,6 +1,11 @@
+import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/foundation.dart'; // for kIsWeb
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:http/http.dart' as http;
 
 class AddStoryScreen extends StatefulWidget {
   const AddStoryScreen({super.key});
@@ -13,15 +18,102 @@ class _AddStoryScreenState extends State<AddStoryScreen> {
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
-  File? _image;
+  File? _imageFile;
+  XFile? _imageXFile;
+  bool _isLoading = false;
+
+  final DatabaseReference dbRef = FirebaseDatabase.instance.ref("stories");
 
   Future<void> _pickImage() async {
     final picker = ImagePicker();
     final picked = await picker.pickImage(source: ImageSource.gallery);
     if (picked != null) {
-      setState(() => _image = File(picked.path));
+      if (kIsWeb) {
+        setState(() => _imageXFile = picked);
+      } else {
+        setState(() => _imageFile = File(picked.path));
+      }
     }
   }
+
+  Future<String?> _uploadToImgBB() async {
+    const apiKey = "7bac27b5a053536ee218ba8a64fc4d13"; // replace with your key
+    final url = Uri.parse("https://api.imgbb.com/1/upload?key=$apiKey");
+
+    try {
+      if (kIsWeb && _imageXFile != null) {
+        final bytes = await _imageXFile!.readAsBytes();
+        String base64Image = base64Encode(bytes);
+        final res = await http.post(url, body: {"image": base64Image});
+        if (res.statusCode == 200) {
+          final data = jsonDecode(res.body);
+          return data["data"]["url"];
+        }
+      } else if (_imageFile != null) {
+        var request = http.MultipartRequest("POST", url);
+        request.files.add(await http.MultipartFile.fromPath("image", _imageFile!.path));
+        var response = await request.send();
+        if (response.statusCode == 200) {
+          var resBody = await response.stream.bytesToString();
+          var data = jsonDecode(resBody);
+          return data["data"]["url"];
+        }
+      }
+    } catch (e) {
+      debugPrint("Upload error: $e");
+    }
+    return null;
+  }
+
+ Future<void> _saveStory() async {
+  if (!_formKey.currentState!.validate()) return;
+
+  setState(() => _isLoading = true);
+
+  String? imageUrl = "";
+  if (_imageFile != null || _imageXFile != null) {
+    imageUrl = await _uploadToImgBB();
+  }
+
+  final userId = FirebaseAuth.instance.currentUser?.uid ?? "unknown";
+
+  final storyData = {
+    "title": _titleController.text.trim(),
+    "description": _descriptionController.text.trim(),
+    "imageUrl": imageUrl ?? "",
+    "createdAt": DateTime.now().toIso8601String(),
+    "userId": userId,
+  };
+
+  await dbRef.push().set(storyData);
+
+  setState(() => _isLoading = false);
+
+  if (mounted) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text("Success"),
+        content: const Text("Story saved successfully!"),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx); // close dialog
+              _formKey.currentState!.reset();
+              _titleController.clear();
+              _descriptionController.clear();
+              setState(() {
+                _imageFile = null;
+                _imageXFile = null;
+              });
+            },
+            child: const Text("OK"),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -46,15 +138,14 @@ class _AddStoryScreenState extends State<AddStoryScreen> {
                   decoration: BoxDecoration(
                     color: Colors.grey.shade300,
                     borderRadius: BorderRadius.circular(12),
-                    image: _image != null
-                        ? DecorationImage(
-                        image: FileImage(_image!), fit: BoxFit.cover)
-                        : null,
+                    image: _imageFile != null
+                        ? DecorationImage(image: FileImage(_imageFile!), fit: BoxFit.cover)
+                        : (_imageXFile != null
+                            ? DecorationImage(image: NetworkImage(_imageXFile!.path), fit: BoxFit.cover)
+                            : null),
                   ),
-                  child: _image == null
-                      ? const Center(
-                    child: Icon(Icons.add_a_photo, size: 40, color: Colors.white),
-                  )
+                  child: (_imageFile == null && _imageXFile == null)
+                      ? const Center(child: Icon(Icons.add_a_photo, size: 40, color: Colors.white))
                       : null,
                 ),
               ),
@@ -62,6 +153,7 @@ class _AddStoryScreenState extends State<AddStoryScreen> {
               _sectionLabel("Story Title"),
               TextFormField(
                 controller: _titleController,
+                validator: (val) => val == null || val.isEmpty ? "Title required" : null,
                 decoration: _inputDecoration("Enter story title"),
               ),
               const SizedBox(height: 16),
@@ -69,25 +161,21 @@ class _AddStoryScreenState extends State<AddStoryScreen> {
               TextFormField(
                 controller: _descriptionController,
                 maxLines: 6,
+                validator: (val) => val == null || val.isEmpty ? "Description required" : null,
                 decoration: _inputDecoration("Write the full story here..."),
               ),
               const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    // Save logic (UI only for now)
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Story saved (dummy).")),
-                    );
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF4CAF50),
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                ),
-                child: const Text("Save Story", style: TextStyle(fontSize: 16)),
-              ),
+              _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : ElevatedButton(
+                      onPressed: _saveStory,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF4CAF50),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                      child: const Text("Save Story", style: TextStyle(fontSize: 16)),
+                    ),
             ],
           ),
         ),

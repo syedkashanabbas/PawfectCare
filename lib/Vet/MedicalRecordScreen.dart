@@ -62,7 +62,10 @@ class MedicalRecordScreen extends StatelessWidget {
                     elevation: 2,
                     margin: const EdgeInsets.only(bottom: 12),
                     child: ListTile(
-                      leading: const Icon(Icons.medical_services_outlined, color: Colors.green),
+                      leading: const Icon(
+                        Icons.medical_services_outlined,
+                        color: Colors.green,
+                      ),
                       title: Text(record['diagnosis']!),
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -89,9 +92,12 @@ class MedicalRecordScreen extends StatelessWidget {
       child: ListTile(
         leading: const CircleAvatar(
           radius: 28,
-          backgroundImage: AssetImage('assets/pet1.png'),
+          backgroundImage: AssetImage('assets/pet.jpg'),
         ),
-        title: const Text('Tommy', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text(
+          'Tommy',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         subtitle: const Text('Golden Retriever • Male • 2 Years'),
         trailing: IconButton(
           icon: const Icon(Icons.upload_file, color: Colors.green),

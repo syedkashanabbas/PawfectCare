@@ -10,7 +10,7 @@ class AssignedPetsScreen extends StatelessWidget {
         'name': 'Tommy',
         'breed': 'Golden Retriever',
         'age': '2 Years',
-        'image': 'assets/pet1.png',
+        'image': 'assets/pet.jpg',
       },
       {
         'name': 'Bella',
