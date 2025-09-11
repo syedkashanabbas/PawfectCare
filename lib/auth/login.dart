@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:pawfectcare/auth/forgotPassword.dart';
 import 'package:pawfectcare/auth_service.dart'; // <-- banai hui AuthService import karna
@@ -19,20 +20,34 @@ class _LoginState extends State<login> {
   void _login() async {
     setState(() => isLoading = true);
     try {
-      final user = await _authService.loginUser(
+      final result = await _authService.loginUser(
         emailController.text.trim(),
         passwordController.text.trim(),
       );
 
-      if (user != null) {
-        Navigator.pushReplacementNamed(context, '/petownerdashboard');
+      if (result != null) {
+        final role = result["role"];
+        String route;
+
+        if (role == "Pet Owner") {
+          route = "/petownerdashboard";
+        } else if (role == "Veterinarian") {
+          route = "/veterinariandashboard";
+        } else if (role == "Super Admin") {
+          route = "/admindashboard";
+        } else {
+          route = "/home"; // fallback
+        }
+
+        Navigator.pushReplacementNamed(context, route);
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Login Failed: $e")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Login Failed: $e")));
+    } finally {
+      setState(() => isLoading = false);
     }
-    setState(() => isLoading = false);
   }
 
   @override
@@ -56,10 +71,7 @@ class _LoginState extends State<login> {
               child: Column(
                 children: [
                   const SizedBox(height: 50),
-                  Image.asset(
-                    "assets/images/coco.png",
-                    height: 120,
-                  ),
+                  Image.asset("assets/images/coco.png", height: 120),
                   const SizedBox(height: 20),
                   CustomTextField(
                     controller: emailController,
@@ -199,17 +211,12 @@ class SocialLoginButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton.icon(
       icon: Icon(icon, color: Colors.white),
-      label: Text(
-        label,
-        style: const TextStyle(color: Colors.white),
-      ),
+      label: Text(label, style: const TextStyle(color: Colors.white)),
       onPressed: () {},
       style: ElevatedButton.styleFrom(
         backgroundColor: color,
         minimumSize: const Size.fromHeight(50),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(6),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
       ),
     );
   }
