@@ -9,7 +9,13 @@ import 'package:pawfectcare/Petowner/Productdetails.dart';
 import 'package:pawfectcare/Petowner/Add_edit.dart';
 import 'package:pawfectcare/Petowner/Dashboard.dart';
 import 'package:pawfectcare/Petowner/Pethealth.dart';
+import 'package:pawfectcare/Shelter/Add_story.dart';
+import 'package:pawfectcare/Shelter/Addoption_request.dart';
 import 'package:pawfectcare/Shelter/Dashboard.dart';
+import 'package:pawfectcare/Shelter/Donation_form.dart';
+import 'package:pawfectcare/Shelter/Petlisting.dart';
+import 'package:pawfectcare/Shelter/Success_story.dart';
+import 'package:pawfectcare/Shelter/Volunteer_form.dart';
 import 'package:pawfectcare/Vet/AddDiagnosisScreen.dart';
 import 'package:pawfectcare/Vet/AppointmentCalendarScreen.dart';
 import 'package:pawfectcare/Vet/AssignedPetsScreen.dart';
@@ -52,6 +58,7 @@ class MyApp extends StatelessWidget {
         '/welcome': (context) => const WelcomeScreen(),
         '/login': (context) => const login(),
         '/signup': (context) => const Signup(),
+
         // Pet Owner Screens URLs
         '/petownerdashboard': (context) => const PetOwnerDashboard(),
         '/add_edit': (context) => const AddEditPetProfileScreen(),
@@ -68,9 +75,6 @@ class MyApp extends StatelessWidget {
         '/bloglist': (context) => const BlogListScreen(),
         '/blogdetail': (context) => const BlogDetailScreen(title: "", image: "", description:"hi" ),
 
-        // Shelter Dashboard Screens URLs
-        '/shelterdashboard': (context) => const ShelterDashboardScreen(),
-
         // Vet Dashboard Screens URLs
         '/vetdashboard': (context) => const VetDashboardScreen(),
         '/appointmentcalendar': (context) => const AppointmentCalendarScreen(),
@@ -78,7 +82,19 @@ class MyApp extends StatelessWidget {
         '/medicalrecord': (context) => const MedicalRecordScreen(),
         '/adddiagnosis': (context) => const AddDiagnosisScreen(),
         '/uploadmedicalfiles': (context) => const UploadMedicalFilesScreen(),
+
+        // Shelter Dashboard Screens URLs
+        '/shelterdashboard': (context) => const ShelterDashboardScreen(),
+        '/petlisting': (context) => const PetListingScreen(),
+        '/add_editlisting': (context) => const AddEditPetProfileScreen(),
+        '/adoption': (context) => const AdoptionRequestsScreen(),
+        '/successstory': (context) => const SuccessStoriesScreen(),
+        '/addstory': (context) => const AddStoryScreen(),
+        '/volunteer': (context) => const VolunteerFormScreen(),
+        '/donation': (context) => const DonationFormScreen(),
+
       },
     );
   }
 }
+
