@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:lottie/lottie.dart'; // Add lottie package in pubspec.yaml
-import 'package:shimmer/shimmer.dart'; // Add shimmer package in pubspec.yaml
+import 'package:lottie/lottie.dart';
+import 'package:shimmer/shimmer.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 class AddEditPetProfileScreen extends StatefulWidget {
   final bool isEditing;
@@ -10,15 +11,20 @@ class AddEditPetProfileScreen extends StatefulWidget {
   State<AddEditPetProfileScreen> createState() => _AddEditPetProfileScreenState();
 }
 
-class _AddEditPetProfileScreenState extends State<AddEditPetProfileScreen> with SingleTickerProviderStateMixin {
+class _AddEditPetProfileScreenState extends State<AddEditPetProfileScreen>
+    with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController nameController = TextEditingController();
   final TextEditingController breedController = TextEditingController();
   final TextEditingController ageController = TextEditingController();
+  final TextEditingController customSpeciesController = TextEditingController();
+
   String gender = 'Male';
   String species = 'Dog';
   String imageUrl = '';
   late AnimationController _animController;
+
+  final DatabaseReference dbRef = FirebaseDatabase.instance.ref("pets");
 
   @override
   void initState() {
@@ -32,7 +38,35 @@ class _AddEditPetProfileScreenState extends State<AddEditPetProfileScreen> with 
   @override
   void dispose() {
     _animController.dispose();
+    nameController.dispose();
+    breedController.dispose();
+    ageController.dispose();
+    customSpeciesController.dispose();
     super.dispose();
+  }
+
+  void _savePet() async {
+    if (_formKey.currentState!.validate()) {
+      final petData = {
+        "name": nameController.text.trim(),
+        "breed": breedController.text.trim(),
+        "age": ageController.text.trim(),
+        "gender": gender,
+        "species": species == "Other"
+            ? customSpeciesController.text.trim()
+            : species,
+        "imageUrl": imageUrl,
+        "createdAt": DateTime.now().toIso8601String(),
+      };
+
+      await dbRef.push().set(petData);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Pet saved successfully!")),
+      );
+
+      Navigator.pop(context); 
+    }
   }
 
   @override
@@ -53,12 +87,14 @@ class _AddEditPetProfileScreenState extends State<AddEditPetProfileScreen> with 
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Pet Photo', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                const Text('Pet Photo',
+                    style:
+                        TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
                 const SizedBox(height: 8),
                 Center(
                   child: GestureDetector(
                     onTap: () {
-                      // Upload or pick image logic
+                   
                     },
                     child: Hero(
                       tag: 'pet_photo',
@@ -90,7 +126,7 @@ class _AddEditPetProfileScreenState extends State<AddEditPetProfileScreen> with 
                                   ],
                                 ),
                                 child: Lottie.asset(
-                                  'assets/lottie/pet.json', // Add a cute pet Lottie file in assets
+                                  'assets/lottie/pet.json',
                                   repeat: true,
                                   fit: BoxFit.contain,
                                 ),
@@ -100,67 +136,73 @@ class _AddEditPetProfileScreenState extends State<AddEditPetProfileScreen> with 
                   ),
                 ),
                 const SizedBox(height: 24),
-                _animatedField(
-                  delay: 100,
-                  child: _buildTextField(label: 'Name', controller: nameController, icon: Icons.pets),
-                ),
-                _animatedField(
-                  delay: 200,
-                  child: _buildTextField(label: 'Breed', controller: breedController, icon: Icons.category),
-                ),
-                _animatedField(
-                  delay: 300,
-                  child: _buildTextField(label: 'Age', controller: ageController, keyboardType: TextInputType.number, icon: Icons.cake),
+                _buildTextField(
+                    label: 'Name',
+                    controller: nameController,
+                    icon: Icons.pets),
+                _buildTextField(
+                    label: 'Breed',
+                    controller: breedController,
+                    icon: Icons.category),
+                _buildTextField(
+                    label: 'Age',
+                    controller: ageController,
+                    keyboardType: TextInputType.number,
+                    icon: Icons.cake),
+                const SizedBox(height: 12),
+                _buildDropdown(
+                  label: 'Gender',
+                  value: gender,
+                  items: ['Male', 'Female'],
+                  onChanged: (val) => setState(() => gender = val),
                 ),
                 const SizedBox(height: 12),
-                _animatedField(
-                  delay: 400,
-                  child: _buildDropdown(label: 'Gender', value: gender, items: ['Male', 'Female'], onChanged: (val) => setState(() => gender = val)),
+                _buildDropdown(
+                  label: 'Species',
+                  value: species,
+                  items: ['Dog', 'Cat', 'Bird', 'Other'],
+                  onChanged: (val) => setState(() => species = val),
                 ),
-                const SizedBox(height: 12),
-                _animatedField(
-                  delay: 500,
-                  child: _buildDropdown(label: 'Species', value: species, items: ['Dog', 'Cat', 'Bird', 'Other'], onChanged: (val) => setState(() => species = val)),
-                ),
+                if (species == "Other") ...[
+                  const SizedBox(height: 12),
+                  _buildTextField(
+                    label: "Enter custom species",
+                    controller: customSpeciesController,
+                    icon: Icons.edit,
+                  ),
+                ],
                 const SizedBox(height: 32),
-                _animatedField(
-                  delay: 600,
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(16),
-                      onTap: () {
-                        if (_formKey.currentState!.validate()) {
-                          // Save logic here
-                        }
-                      },
-                      child: Ink(
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFF43E97B), Color(0xFF38F9D7)],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.green.withOpacity(0.18),
-                              blurRadius: 12,
-                              offset: const Offset(0, 6),
-                            ),
-                          ],
+                SizedBox(
+                  width: double.infinity,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(16),
+                    onTap: _savePet,
+                    child: Ink(
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF43E97B), Color(0xFF38F9D7)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
                         ),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          child: Center(
-                            child: Text(
-                              widget.isEditing ? 'Update Pet' : 'Add Pet',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18,
-                                letterSpacing: 1.1,
-                              ),
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.green.withOpacity(0.18),
+                            blurRadius: 12,
+                            offset: const Offset(0, 6),
+                          ),
+                        ],
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        child: Center(
+                          child: Text(
+                            widget.isEditing ? 'Update Pet' : 'Add Pet',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                              letterSpacing: 1.1,
                             ),
                           ),
                         ),
@@ -173,22 +215,6 @@ class _AddEditPetProfileScreenState extends State<AddEditPetProfileScreen> with 
           ),
         ),
       ),
-    );
-  }
-
-  Widget _animatedField({required int delay, required Widget child}) {
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0, end: 1),
-      duration: Duration(milliseconds: 500 + delay),
-      builder: (context, value, _) {
-        return Opacity(
-          opacity: value,
-          child: Transform.translate(
-            offset: Offset(0, 30 * (1 - value)),
-            child: child,
-          ),
-        );
-      },
     );
   }
 
@@ -207,7 +233,8 @@ class _AddEditPetProfileScreenState extends State<AddEditPetProfileScreen> with 
         child: TextFormField(
           controller: controller,
           keyboardType: keyboardType,
-          validator: (value) => value == null || value.isEmpty ? 'Required field' : null,
+          validator: (value) =>
+              value == null || value.isEmpty ? 'Required field' : null,
           decoration: InputDecoration(
             prefixIcon: icon != null ? Icon(icon, color: Colors.green[400]) : null,
             labelText: label,
@@ -247,7 +274,10 @@ class _AddEditPetProfileScreenState extends State<AddEditPetProfileScreen> with 
               isExpanded: true,
               underline: const SizedBox(),
               onChanged: (val) => onChanged(val!),
-              items: items.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+              items: items
+                  .map((e) => DropdownMenuItem(
+                      value: e, child: Text(e)))
+                  .toList(),
             ),
           ),
         ),
