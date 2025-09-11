@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:pawfectcare/auth/forgotPassword.dart';
 import 'package:pawfectcare/auth_service.dart'; 
@@ -34,7 +33,7 @@ class _LoginState extends State<login> {
         } else if (role == "Veterinarian") {
           route = "/vetdashboard";
         } else if (role == "Super Admin") {
-          route = "/admindashboard";
+          route = "/shelterdashboard";
         } else {
           route = "/home"; // fallback
         }
@@ -181,7 +180,7 @@ Row(
   }
 }
 
-// ✅ Updated CustomTextField with controller support
+
 class CustomTextField extends StatelessWidget {
   final String hintText;
   final IconData icon;
