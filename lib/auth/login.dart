@@ -32,7 +32,7 @@ class _LoginState extends State<login> {
         if (role == "Pet Owner") {
           route = "/petownerdashboard";
         } else if (role == "Veterinarian") {
-          route = "/veterinariandashboard";
+          route = "/vetdashboard";
         } else if (role == "Super Admin") {
           route = "/admindashboard";
         } else {

@@ -6,9 +6,16 @@ import 'package:pawfectcare/Petowner/Blogdetail.dart';
 import 'package:pawfectcare/Petowner/Bloglist.dart';
 import 'package:pawfectcare/Petowner/Petstore.dart';
 import 'package:pawfectcare/Petowner/Productdetails.dart';
-import 'package:pawfectcare/Petowner/add_edit.dart';
-import 'package:pawfectcare/Petowner/dashboard.dart';
-import 'package:pawfectcare/Petowner/pethealth.dart';
+import 'package:pawfectcare/Petowner/Add_edit.dart';
+import 'package:pawfectcare/Petowner/Dashboard.dart';
+import 'package:pawfectcare/Petowner/Pethealth.dart';
+import 'package:pawfectcare/Shelter/Dashboard.dart';
+import 'package:pawfectcare/Vet/AddDiagnosisScreen.dart';
+import 'package:pawfectcare/Vet/AppointmentCalendarScreen.dart';
+import 'package:pawfectcare/Vet/AssignedPetsScreen.dart';
+import 'package:pawfectcare/Vet/MedicalRecordScreen.dart';
+import 'package:pawfectcare/Vet/UploadMedicalFilesScreen.dart';
+import 'package:pawfectcare/Vet/VetDashboardScreen.dart';
 import 'package:pawfectcare/homepage.dart';
 import 'package:pawfectcare/auth/login.dart';
 import 'package:pawfectcare/auth/signup.dart';
@@ -34,11 +41,13 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/',
       routes: {
+        // Auth Screens URLs
         '/': (context) => const SplashScreen(),
         '/home': (context) => const HomePage(),
         '/welcome': (context) => const WelcomeScreen(),
         '/login': (context) => const login(),
         '/signup': (context) => const Signup(),
+        // Pet Owner Screens URLs
         '/petownerdashboard': (context) => const PetOwnerDashboard(),
         '/add_edit': (context) => const AddEditPetProfileScreen(),
         '/pethealth': (context) => const PetHealthScreen(),
@@ -53,10 +62,19 @@ class MyApp extends StatelessWidget {
         ),
         '/bloglist': (context) => const BlogListScreen(),
         '/blogdetail': (context) => const BlogDetailScreen(title: "", image: "", description:"hi" ),
-        '/shelter': (context) => const BlogListScreen(),
+
+        // Shelter Dashboard Screens URLs
+        '/shelterdashboard': (context) => const ShelterDashboardScreen(),
+
+        // Vet Dashboard Screens URLs
+        '/vetdashboard': (context) => const VetDashboardScreen(),
+        '/appointmentcalendar': (context) => const AppointmentCalendarScreen(),
+        '/assignedpets': (context) => const AssignedPetsScreen(),
+        '/medicalrecord': (context) => const MedicalRecordScreen(),
+        '/adddiagnosis': (context) => const AddDiagnosisScreen(),
+        '/uploadmedicalfiles': (context) => const UploadMedicalFilesScreen(),
 
 
-        
 
       },
     );
