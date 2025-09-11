@@ -14,7 +14,7 @@ class ForgotPassword extends StatelessWidget {
             child: Opacity(
               opacity: 0.1,
               child: Image.asset(
-                "assets/images/bg.png",
+                "assets/images/loginbg.png",
                 fit: BoxFit.contain,
               ),
             ),

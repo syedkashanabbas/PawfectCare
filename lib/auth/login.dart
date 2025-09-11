@@ -14,8 +14,8 @@ class login extends StatelessWidget {
             child: Opacity(
               opacity: 0.1,
               child: Image.asset(
-                "assets/images/bg.png",
-                fit: BoxFit.contain,
+                "assets/images/loginbg.png",
+                fit: BoxFit.cover,
               ),
             ),
           ),

@@ -15,7 +15,7 @@ class _SplashScreenState extends State<SplashScreen> {
     super.initState();
     // 3 second ke baad home page par le jao
     Future.delayed(const Duration(seconds: 3), () {
-      Navigator.pushReplacementNamed(context, '/add_edit');
+      Navigator.pushReplacementNamed(context, '/welcome');
     });
   }
 

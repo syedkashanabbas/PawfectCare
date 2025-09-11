@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:pawfectcare/Petowner/add/add_edit.dart';
+import 'package:pawfectcare/Petowner/Appointmentbooking.dart';
+import 'package:pawfectcare/Petowner/Appointmenthistory.dart';
+import 'package:pawfectcare/Petowner/Petstore.dart';
+import 'package:pawfectcare/Petowner/add_edit.dart';
 import 'package:pawfectcare/Petowner/dashboard.dart';
-import 'package:pawfectcare/Petowner/petlist.dart';
+import 'package:pawfectcare/Petowner/pethealth.dart';
 import 'package:pawfectcare/homepage.dart';
 import 'package:pawfectcare/auth/login.dart';
 import 'package:pawfectcare/auth/signup.dart';
@@ -32,6 +35,10 @@ class MyApp extends StatelessWidget {
         '/signup': (context) => const Signup(),
         '/petownerdashboard': (context) => const PetOwnerDashboard(),
         '/add_edit': (context) => const AddEditPetProfileScreen(),
+        '/pethealth': (context) => const PetHealthScreen(),
+        '/appointment': (context) => const BookAppointmentScreen(),
+        '/appointmenthistory': (context) => AppointmentHistoryScreen(),
+        '/petstore': (context) =>  PetStoreScreen(),
 
       },
     );
