@@ -53,6 +53,7 @@ class MyApp extends StatelessWidget {
         ),
         '/bloglist': (context) => const BlogListScreen(),
         '/blogdetail': (context) => const BlogDetailScreen(title: "", image: "", description:"hi" ),
+        '/shelter': (context) => const BlogListScreen(),
 
 
         

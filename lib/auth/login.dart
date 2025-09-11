@@ -126,6 +126,26 @@ class _LoginState extends State<login> {
                             ),
                           ),
                   ),
+                  const SizedBox(height: 16),
+Row(
+  mainAxisAlignment: MainAxisAlignment.center,
+  children: [
+    const Text("Don't have an account? "),
+    TextButton(
+      onPressed: () {
+        Navigator.pushNamed(context, '/signup');
+      },
+      child: const Text(
+        "Register",
+        style: TextStyle(
+          color: Colors.teal,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    ),
+  ],
+),
+
                   const SizedBox(height: 24),
                   const Text('or connect with'),
                   const SizedBox(height: 16),
