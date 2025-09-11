@@ -16,7 +16,7 @@ class AuthService {
       User? user = result.user;
       if (user == null) return null;
 
-      // Fetch role from Firestore
+      
       final doc = await _db.collection("users").doc(user.uid).get();
 
       if (!doc.exists) {
@@ -30,7 +30,7 @@ class AuthService {
     }
   }
 
-  // Signup User + save role
+
   Future<User?> registerUser(
     String email,
     String password,
@@ -46,7 +46,7 @@ class AuthService {
       User? user = result.user;
       if (user == null) return null;
 
-      // Save extra data to Firestore
+    
       await _db.collection("users").doc(user.uid).set({
         "name": name,
         "email": email,
@@ -60,11 +60,11 @@ class AuthService {
     }
   }
 
-  // Logout User
+
   Future<void> logoutUser() async {
     await _auth.signOut();
   }
 
-  // Current User
+
   User? get currentUser => _auth.currentUser;
 }

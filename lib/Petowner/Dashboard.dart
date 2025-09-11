@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pawfectcare/auth_service.dart';
 
 class PetOwnerDashboard extends StatelessWidget {
   const PetOwnerDashboard({super.key});
@@ -12,10 +13,18 @@ class PetOwnerDashboard extends StatelessWidget {
         elevation: 0,
         title: const Text('Hey Pixel Posse,'),
         actions: [
+          IconButton(icon: const Icon(Icons.notifications), onPressed: () {}),
           IconButton(
-            icon: const Icon(Icons.notifications),
-            onPressed: () {},
-          )
+            icon: const Icon(Icons.logout),
+            tooltip: "Logout",
+            onPressed: () async {
+              await AuthService().logoutUser(); // sign out from Firebase
+              Navigator.pushReplacementNamed(
+                context,
+                "/login",
+              ); // go back to login screen
+            },
+          ),
         ],
       ),
       body: SingleChildScrollView(
@@ -57,7 +66,10 @@ class PetOwnerDashboard extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('My Pets', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        const Text(
+          'My Pets',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
         const SizedBox(height: 8),
         SizedBox(
           height: 90,
@@ -69,7 +81,7 @@ class PetOwnerDashboard extends StatelessWidget {
               _petAvatar('Furry', 'https://i.imgur.com/3.jpg'),
             ],
           ),
-        )
+        ),
       ],
     );
   }
@@ -77,12 +89,9 @@ class PetOwnerDashboard extends StatelessWidget {
   Widget _petAvatar(String name, String imageUrl) {
     return Column(
       children: [
-        CircleAvatar(
-          radius: 28,
-          backgroundImage: NetworkImage(imageUrl),
-        ),
+        CircleAvatar(radius: 28, backgroundImage: NetworkImage(imageUrl)),
         const SizedBox(height: 4),
-        Text(name)
+        Text(name),
       ],
     ).paddingSymmetric(horizontal: 10);
   }
@@ -121,7 +130,7 @@ class PetOwnerDashboard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-              Text(subtitle, style: const TextStyle(color: Colors.grey))
+              Text(subtitle, style: const TextStyle(color: Colors.grey)),
             ],
           ),
         ],
@@ -133,7 +142,10 @@ class PetOwnerDashboard extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Pet Food', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        const Text(
+          'Pet Food',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
         const SizedBox(height: 8),
         SizedBox(
           height: 160,
@@ -144,7 +156,7 @@ class PetOwnerDashboard extends StatelessWidget {
               _productCard('Happy Dog Food', 'https://i.imgur.com/x2.png'),
             ],
           ),
-        )
+        ),
       ],
     );
   }
@@ -168,32 +180,43 @@ class PetOwnerDashboard extends StatelessWidget {
             onPressed: () {},
             style: ElevatedButton.styleFrom(backgroundColor: Colors.green[600]),
             child: const Text('Buy'),
-          )
+          ),
         ],
       ),
     );
   }
 
   Widget _blogTipsSection() {
-    return _infoCard(Icons.article, 'Pet Care Tips', 'Nutrition, Training, First Aid');
+    return _infoCard(
+      Icons.article,
+      'Pet Care Tips',
+      'Nutrition, Training, First Aid',
+    );
   }
 
   Widget _vetsSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Vets', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        const Text(
+          'Vets',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
         const SizedBox(height: 8),
         _vetCard(
           name: 'Dr. Nambuvan',
           imageUrl: 'https://i.imgur.com/dr.jpg',
           lastVisit: '25/11/2022',
-        )
+        ),
       ],
     );
   }
 
-  Widget _vetCard({required String name, required String imageUrl, required String lastVisit}) {
+  Widget _vetCard({
+    required String name,
+    required String imageUrl,
+    required String lastVisit,
+  }) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -202,10 +225,7 @@ class PetOwnerDashboard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          CircleAvatar(
-            backgroundImage: NetworkImage(imageUrl),
-            radius: 30,
-          ),
+          CircleAvatar(backgroundImage: NetworkImage(imageUrl), radius: 30),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -221,7 +241,7 @@ class PetOwnerDashboard extends StatelessWidget {
             onPressed: () {},
             style: ElevatedButton.styleFrom(backgroundColor: Colors.green[600]),
             child: const Text('Book'),
-          )
+          ),
         ],
       ),
     );

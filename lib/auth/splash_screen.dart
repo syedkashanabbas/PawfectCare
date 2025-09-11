@@ -13,7 +13,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    // 3 second ke baad home page par le jao
+   
     Future.delayed(const Duration(seconds: 3), () {
       Navigator.pushReplacementNamed(context, '/login');
     });
@@ -22,7 +22,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF65C057), // green background
+      backgroundColor: const Color(0xFF65C057), 
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:pawfectcare/auth/forgotPassword.dart';
-import 'package:pawfectcare/auth_service.dart'; // <-- banai hui AuthService import karna
+import 'package:pawfectcare/auth_service.dart'; 
 
 class login extends StatefulWidget {
   const login({super.key});
@@ -126,6 +126,26 @@ class _LoginState extends State<login> {
                             ),
                           ),
                   ),
+                  const SizedBox(height: 16),
+Row(
+  mainAxisAlignment: MainAxisAlignment.center,
+  children: [
+    const Text("Don't have an account? "),
+    TextButton(
+      onPressed: () {
+        Navigator.pushNamed(context, '/signup');
+      },
+      child: const Text(
+        "Register",
+        style: TextStyle(
+          color: Colors.teal,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    ),
+  ],
+),
+
                   const SizedBox(height: 24),
                   const Text('or connect with'),
                   const SizedBox(height: 16),
