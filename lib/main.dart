@@ -1,5 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:pawfectcare/Appointments/%20Unified_calendar_view.dart';
+import 'package:pawfectcare/Appointments/Appointmentdetails.dart';
+import 'package:pawfectcare/Common/Contactus.dart';
+import 'package:pawfectcare/Common/Feedback.dart';
+import 'package:pawfectcare/Common/Home_screen.dart';
+import 'package:pawfectcare/Common/Notification.dart';
+import 'package:pawfectcare/Common/Searchscreen.dart';
+import 'package:pawfectcare/Common/User_profile.dart';
 import 'package:pawfectcare/Petowner/Appointmentbooking.dart';
 import 'package:pawfectcare/Petowner/Appointmenthistory.dart';
 import 'package:pawfectcare/Petowner/Blogdetail.dart';
@@ -92,6 +100,23 @@ class MyApp extends StatelessWidget {
         '/addstory': (context) => const AddStoryScreen(),
         '/volunteer': (context) => const VolunteerFormScreen(),
         '/donation': (context) => const DonationFormScreen(),
+
+        // Common Screens URLs
+        '/homescreen': (context) => const HomeScreen(role: 'Pet Owner'),
+        '/userprofile': (context) => const UserProfileScreen(role: "", name: "abc", email: "abc@gmail.com", phone: "090078601"),
+        '/notification': (context) => const NotificationScreen(),
+        '/contactus': (context) => const ContactUsScreen(),
+        '/search': (context) => const SearchScreen(),
+        '/feedback': (context) => const FeedbackScreen(),
+
+        // Common Screens URLs
+        '/unifiedcalender': (context) => const UnifiedCalendarView(),
+        '/appointmentdetails': (context) => const AppointmentDetailsScreen(),
+
+
+        
+
+
 
       },
     );
