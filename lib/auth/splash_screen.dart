@@ -15,7 +15,7 @@ class _SplashScreenState extends State<SplashScreen> {
     super.initState();
     // 3 second ke baad home page par le jao
     Future.delayed(const Duration(seconds: 3), () {
-      Navigator.pushReplacementNamed(context, '/welcome');
+      Navigator.pushReplacementNamed(context, '/login');
     });
   }
 
@@ -27,10 +27,7 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset(
-              "assets/images/splash.png",
-              height: 200,
-            ),
+            Image.asset("assets/images/splash.png", height: 200),
             const SizedBox(height: 30),
             const Text(
               'LOADING',

@@ -1,29 +1,60 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _db = FirebaseFirestore.instance;
 
-  // Login User
-  Future<User?> loginUser(String email, String password) async {
+  // Login User + fetch role
+  Future<Map<String, dynamic>?> loginUser(String email, String password) async {
     try {
       UserCredential result = await _auth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
-      return result.user;
+
+      User? user = result.user;
+      if (user == null) return null;
+
+      // Fetch role from Firestore
+      final doc = await _db.collection("users").doc(user.uid).get();
+
+      if (!doc.exists) {
+        throw Exception("User profile not found in Firestore");
+      }
+
+      final data = doc.data()!;
+      return {"user": user, "role": data["role"] ?? "Unknown"};
     } catch (e) {
       throw Exception(e.toString());
     }
   }
 
-  // Signup User
-  Future<User?> registerUser(String email, String password) async {
+  // Signup User + save role
+  Future<User?> registerUser(
+    String email,
+    String password,
+    String name,
+    String role,
+  ) async {
     try {
       UserCredential result = await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
-      return result.user;
+
+      User? user = result.user;
+      if (user == null) return null;
+
+      // Save extra data to Firestore
+      await _db.collection("users").doc(user.uid).set({
+        "name": name,
+        "email": email,
+        "role": role,
+        "createdAt": DateTime.now(),
+      });
+
+      return user;
     } catch (e) {
       throw Exception(e.toString());
     }
