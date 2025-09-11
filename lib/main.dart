@@ -103,7 +103,7 @@ class MyApp extends StatelessWidget {
 
         // Common Screens URLs
         '/homescreen': (context) => const HomeScreen(role: 'Pet Owner'),
-        '/userprofile': (context) => const UserProfileScreen(role: "", name: "abc", email: "abc@gmail.com", phone: "090078601"),
+        '/userprofile': (context) => const UserProfileScreen(),
         '/notification': (context) => const NotificationScreen(),
         '/contactus': (context) => const ContactUsScreen(),
         '/search': (context) => const SearchScreen(),

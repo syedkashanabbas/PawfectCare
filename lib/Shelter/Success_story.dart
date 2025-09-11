@@ -52,7 +52,7 @@ class _SuccessStoriesScreenState extends State<SuccessStoriesScreen> {
   }
 
   Future<String?> _uploadToImgBB(File? file, XFile? xfile) async {
-    const apiKey = "YOUR_IMGBB_API_KEY"; // replace with your key
+    const apiKey = "7bac27b5a053536ee218ba8a64fc4d13"; // replace with your key
     final url = Uri.parse("https://api.imgbb.com/1/upload?key=$apiKey");
 
     try {

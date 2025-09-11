@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 class DonationFormScreen extends StatefulWidget {
   const DonationFormScreen({super.key});
@@ -16,7 +17,64 @@ class _DonationFormScreenState extends State<DonationFormScreen> {
   final _messageController = TextEditingController();
   String? _paymentMethod;
 
-  final List<String> _paymentOptions = ['Credit Card', 'Bank Transfer', 'Cash', 'Other'];
+  bool _isLoading = false;
+
+  final DatabaseReference dbRef =
+      FirebaseDatabase.instance.ref("donations"); 
+
+  final List<String> _paymentOptions = [
+    'Credit Card',
+    'Bank Transfer',
+    'Cash',
+    'Other'
+  ];
+
+  Future<void> _submitDonation() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isLoading = true);
+
+    final donationData = {
+      "name": _nameController.text.trim(),
+      "email": _emailController.text.trim(),
+      "phone": _phoneController.text.trim(),
+      "amount": _amountController.text.trim(),
+      "paymentMethod": _paymentMethod ?? "",
+      "message": _messageController.text.trim(),
+      "createdAt": DateTime.now().toIso8601String(),
+    };
+
+    await dbRef.push().set(donationData);
+
+    setState(() => _isLoading = false);
+
+    if (mounted) {
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text("Thank You"),
+          content: const Text("Your donation has been recorded successfully!"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(ctx); // close dialog
+                _formKey.currentState!.reset();
+                _nameController.clear();
+                _emailController.clear();
+                _phoneController.clear();
+                _amountController.clear();
+                _messageController.clear();
+                setState(() {
+                  _paymentMethod = null;
+                });
+              },
+              child: const Text("OK"),
+            ),
+          ],
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +82,8 @@ class _DonationFormScreenState extends State<DonationFormScreen> {
       backgroundColor: const Color(0xFFEFFAF0),
       appBar: AppBar(
         backgroundColor: const Color(0xFF4CAF50),
-        title: const Text('Make a Donation', style: TextStyle(color: Colors.white)),
+        title: const Text('Make a Donation',
+            style: TextStyle(color: Colors.white)),
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: Padding(
@@ -71,7 +130,8 @@ class _DonationFormScreenState extends State<DonationFormScreen> {
               DropdownButtonFormField<String>(
                 value: _paymentMethod,
                 items: _paymentOptions
-                    .map((method) => DropdownMenuItem(value: method, child: Text(method)))
+                    .map((method) =>
+                        DropdownMenuItem(value: method, child: Text(method)))
                     .toList(),
                 onChanged: (val) => setState(() => _paymentMethod = val),
                 decoration: _input("Choose payment method"),
@@ -87,22 +147,19 @@ class _DonationFormScreenState extends State<DonationFormScreen> {
               ),
               const SizedBox(height: 24),
 
-              ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    // Just UI response
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Donation form submitted (UI only)")),
-                    );
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF4CAF50),
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                ),
-                child: const Text("Donate Now", style: TextStyle(fontSize: 16)),
-              )
+              _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : ElevatedButton(
+                      onPressed: _submitDonation,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF4CAF50),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                      ),
+                      child: const Text("Donate Now",
+                          style: TextStyle(fontSize: 16)),
+                    )
             ],
           ),
         ),
@@ -119,10 +176,14 @@ class _DonationFormScreenState extends State<DonationFormScreen> {
       hintText: hint,
       filled: true,
       fillColor: Colors.white,
-      contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+      contentPadding:
+          const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+      border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide.none),
     );
   }
 
-  String? _required(String? val) => (val == null || val.isEmpty) ? "Required field" : null;
+  String? _required(String? val) =>
+      (val == null || val.isEmpty) ? "Required field" : null;
 }
