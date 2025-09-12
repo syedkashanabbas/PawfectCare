@@ -14,7 +14,6 @@ class ShelterDashboardScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: greenColor,
         title: const Text("Shelter Dashboard", style: TextStyle(color: Colors.white)),
-        // leading: const BackButton(color: Colors.white),
       ),
       drawer: const ShelterDrawer(),
       body: SingleChildScrollView(
@@ -25,11 +24,11 @@ class ShelterDashboardScreen extends StatelessWidget {
             const SizedBox(height: 16),
             _buildPetsCountCard("Total Pets", Icons.pets, Colors.blue),
             const SizedBox(height: 16),
-            _buildStatCard("Total Feedback", "-", Icons.feedback, Colors.pink), // empty for now
+            _buildContactMsgCountCard("Total Messages", Icons.message, Colors.teal),
             const SizedBox(height: 16),
             _buildUserCountCard("Total Veterinarians", "Veterinarian", Icons.medical_services, Colors.green),
             const SizedBox(height: 16),
-            _buildStatCard("Today Appointments", "-", Icons.calendar_month, Colors.purple), // empty for now
+            _buildAppointmentsCountCard("Total Appointments", Icons.calendar_month, Colors.purple),
             const SizedBox(height: 24),
 
             Align(
@@ -93,6 +92,36 @@ class ShelterDashboardScreen extends StatelessWidget {
         final petsMap = Map<dynamic, dynamic>.from(snapshot.data!.snapshot.value as Map);
         final totalPets = petsMap.length.toString();
         return _buildStatCard(title, totalPets, icon, color);
+      },
+    );
+  }
+
+  /// Realtime DB appointments count
+  Widget _buildAppointmentsCountCard(String title, IconData icon, Color color) {
+    return StreamBuilder(
+      stream: FirebaseDatabase.instance.ref("appointments").onValue,
+      builder: (context, snapshot) {
+        if (!snapshot.hasData || snapshot.data!.snapshot.value == null) {
+          return _buildStatCard(title, "0", icon, color);
+        }
+        final appointMap = Map<dynamic, dynamic>.from(snapshot.data!.snapshot.value as Map);
+        final totalAppointments = appointMap.length.toString();
+        return _buildStatCard(title, totalAppointments, icon, color);
+      },
+    );
+  }
+
+  /// Realtime DB contact_messages count
+  Widget _buildContactMsgCountCard(String title, IconData icon, Color color) {
+    return StreamBuilder(
+      stream: FirebaseDatabase.instance.ref("contact_messages").onValue,
+      builder: (context, snapshot) {
+        if (!snapshot.hasData || snapshot.data!.snapshot.value == null) {
+          return _buildStatCard(title, "0", icon, color);
+        }
+        final msgMap = Map<dynamic, dynamic>.from(snapshot.data!.snapshot.value as Map);
+        final totalMsgs = msgMap.length.toString();
+        return _buildStatCard(title, totalMsgs, icon, color);
       },
     );
   }
