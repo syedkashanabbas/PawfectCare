@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 class ContactUsScreen extends StatefulWidget {
   const ContactUsScreen({super.key});
@@ -12,6 +13,9 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _messageController = TextEditingController();
+
+  final DatabaseReference _dbRef =
+      FirebaseDatabase.instance.ref().child("contact_messages");
 
   @override
   Widget build(BuildContext context) {
@@ -55,12 +59,23 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
               const SizedBox(height: 24),
 
               ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   if (_formKey.currentState!.validate()) {
-                    // No backend; show dummy confirmation
+                    // Firebase me save karna
+                    await _dbRef.push().set({
+                      "name": _nameController.text,
+                      "email": _emailController.text,
+                      "message": _messageController.text,
+                      "timestamp": DateTime.now().toIso8601String(),
+                    });
+
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text("Message sent successfully!")),
                     );
+
+                    _nameController.clear();
+                    _emailController.clear();
+                    _messageController.clear();
                   }
                 },
                 style: ElevatedButton.styleFrom(
