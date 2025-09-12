@@ -16,6 +16,8 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
   String? selectedTime;
   String? selectedVetId;
   String? selectedVetName;
+  String? selectedPetId;
+  String? selectedPetName;
 
   final List<String> timeSlots = [
     '9:30', '10:30', '11:30', '3:30', '4:30', '5:30',
@@ -39,10 +41,8 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-
             const Text("Choose a Doctor", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 10),
-
             StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
                   .collection("users")
@@ -52,7 +52,6 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                 if (!snapshot.hasData) return const CircularProgressIndicator();
                 final vets = snapshot.data!.docs;
                 if (vets.isEmpty) return const Text("No doctors available.");
-
                 return DropdownButtonFormField<String>(
                   value: selectedVetId,
                   items: vets.map((doc) {
@@ -75,6 +74,64 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
                   ),
                   hint: const Text("Select a veterinarian"),
+                );
+              },
+            ),
+
+            const SizedBox(height: 20),
+            const Text("Choose a Pet", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 10),
+
+            // Fetch pets from Firebase
+            StreamBuilder<DatabaseEvent>(
+              stream: FirebaseDatabase.instance
+                  .ref('pets')
+                  .orderByChild('ownerId')
+                  .equalTo(FirebaseAuth.instance.currentUser?.uid)
+                  .onValue,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const CircularProgressIndicator();
+                }
+
+                if (!snapshot.hasData || snapshot.data!.snapshot.value == null) {
+                  return const Center(child: Text("No pets found"));
+                }
+
+                final petsMap = Map<dynamic, dynamic>.from(snapshot.data!.snapshot.value as Map);
+                final petList = petsMap.entries.map((entry) {
+                  return {
+                    'id': entry.key,
+                    'name': entry.value['name'],
+                    'age': entry.value['age'],
+                    'breed': entry.value['breed'],
+                  };
+                }).toList();
+
+                return DropdownButtonFormField<String>(
+                  value: selectedPetId,
+                  items: petList.map<DropdownMenuItem<String>>((pet) {
+                    final petId = pet['id'] as String;
+                    final petName = pet['name'] as String;
+
+                    return DropdownMenuItem<String>(
+                      value: petId,
+                      child: Text(petName),
+                    );
+                  }).toList(),
+                  onChanged: (val) {
+                    setState(() {
+                      selectedPetId = val;
+                      final selectedPet = petList.firstWhere((p) => p['id'] == val);
+                      selectedPetName = selectedPet['name'];
+                    });
+                  },
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: Colors.grey.shade100,
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                  ),
+                  hint: const Text("Select a pet"),
                 );
               },
             ),
@@ -139,6 +196,10 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Please select a doctor")));
       return;
     }
+    if (selectedPetId == null || selectedPetName == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Please select a pet")));
+      return;
+    }
     if (selectedTime == null) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Please select a time slot")));
       return;
@@ -151,6 +212,8 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
       "ownerId": userId,
       "vetId": selectedVetId,
       "vetName": selectedVetName,
+      "petId": selectedPetId,
+      "petName": selectedPetName,
       "date": selectedDate.toIso8601String(),
       "time": selectedTime,
       "status": "pending",

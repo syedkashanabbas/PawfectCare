@@ -98,6 +98,15 @@ class _AppointmentCalendarScreenState extends State<AppointmentCalendarScreen> {
                     final status = data["status"] ?? "Pending";
                     final date = DateTime.parse(data["date"]);
                     final time = data["time"] ?? "";
+                    final appointmentId = snapshot.data!.snapshot.children.elementAt(index).key;
+
+                    // Safety check for null values
+                    if (appointmentId == null || status == null) {
+                      return const SizedBox.shrink(); // Skip invalid data
+                    }
+
+                    // Debugging Logs:
+                    print("Appointment ID: $appointmentId, Status: $status");
 
                     return Card(
                       shape: RoundedRectangleBorder(
@@ -129,13 +138,21 @@ class _AppointmentCalendarScreenState extends State<AppointmentCalendarScreen> {
                             if (value == "Approve") {
                               FirebaseDatabase.instance
                                   .ref('appointments')
-                                  .child(docs[index]['id'])
-                                  .update({"status": "Upcoming"});
+                                  .child(appointmentId)
+                                  .update({"status": "Upcoming"}).then((_) {
+                                print('Appointment Approved');
+                              }).catchError((error) {
+                                print('Error: $error');
+                              });
                             } else if (value == "Cancel") {
                               FirebaseDatabase.instance
                                   .ref('appointments')
-                                  .child(docs[index]['id'])
-                                  .update({"status": "Cancelled"});
+                                  .child(appointmentId)
+                                  .update({"status": "Cancelled"}).then((_) {
+                                print('Appointment Cancelled');
+                              }).catchError((error) {
+                                print('Error: $error');
+                              });
                             }
                           },
                           itemBuilder: (context) => [
