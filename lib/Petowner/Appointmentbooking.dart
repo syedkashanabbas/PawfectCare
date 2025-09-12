@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:pawfectcare/Petowner/PetOwnerDrawer.dart';
 
 class BookAppointmentScreen extends StatefulWidget {
@@ -11,22 +14,24 @@ class BookAppointmentScreen extends StatefulWidget {
 class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
   DateTime selectedDate = DateTime.now();
   String? selectedTime;
+  String? selectedVetId;
+  String? selectedVetName;
 
   final List<String> timeSlots = [
-    '9:30', '10:30',
-    '11:30', '3:30',
-    '4:30', '5:30',
+    '9:30', '10:30', '11:30', '3:30', '4:30', '5:30',
   ];
+
+  final DatabaseReference dbRef = FirebaseDatabase.instance.ref("appointments");
 
   @override
   Widget build(BuildContext context) {
-    final greenColor = Color(0xFF4CAF50);
+    final greenColor = const Color(0xFF4CAF50);
 
     return Scaffold(
       appBar: AppBar(
         backgroundColor: greenColor,
         leading: const BackButton(color: Colors.white),
-        title: const Text("Dr. Nambuvan", style: TextStyle(color: Colors.white)),
+        title: const Text("Book Appointment", style: TextStyle(color: Colors.white)),
       ),
       drawer: const PetOwnerDrawer(),
       body: SingleChildScrollView(
@@ -35,10 +40,48 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
 
-            const Text("Choose a Date", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-
+            const Text("Choose a Doctor", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 10),
 
+            StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection("users")
+                  .where("role", isEqualTo: "Veterinarian")
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) return const CircularProgressIndicator();
+                final vets = snapshot.data!.docs;
+                if (vets.isEmpty) return const Text("No doctors available.");
+
+                return DropdownButtonFormField<String>(
+                  value: selectedVetId,
+                  items: vets.map((doc) {
+                    final data = doc.data() as Map<String, dynamic>;
+                    return DropdownMenuItem(
+                      value: doc.id,
+                      child: Text(data["name"] ?? "Unnamed"),
+                    );
+                  }).toList(),
+                  onChanged: (val) {
+                    setState(() {
+                      selectedVetId = val;
+                      final vetDoc = vets.firstWhere((d) => d.id == val);
+                      selectedVetName = (vetDoc.data() as Map<String, dynamic>)["name"];
+                    });
+                  },
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: Colors.grey.shade100,
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                  ),
+                  hint: const Text("Select a veterinarian"),
+                );
+              },
+            ),
+
+            const SizedBox(height: 20),
+            const Text("Choose a Date", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 10),
             Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
@@ -67,27 +110,15 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                   selected: isSelected,
                   selectedColor: greenColor,
                   onSelected: (_) => setState(() => selectedTime = time),
-                  labelStyle: TextStyle(
-                    color: isSelected ? Colors.white : Colors.black,
-                  ),
+                  labelStyle: TextStyle(color: isSelected ? Colors.white : Colors.black),
                   backgroundColor: Colors.grey.shade200,
                 );
               }).toList(),
             ),
 
             const SizedBox(height: 30),
-
             ElevatedButton.icon(
-              onPressed: () {
-                if (selectedTime == null) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Please select a time slot")),
-                  );
-                  return;
-                }
-
-                // TODO: Handle appointment booking logic
-              },
+              onPressed: _bookAppointment,
               icon: const Icon(Icons.calendar_today),
               label: const Text("Book an Appointment"),
               style: ElevatedButton.styleFrom(
@@ -99,16 +130,46 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
           ],
         ),
       ),
-
       bottomNavigationBar: _bottomNavBar(),
     );
+  }
+
+  Future<void> _bookAppointment() async {
+    if (selectedVetId == null || selectedVetName == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Please select a doctor")));
+      return;
+    }
+    if (selectedTime == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Please select a time slot")));
+      return;
+    }
+
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId == null) return;
+
+    await dbRef.push().set({
+      "ownerId": userId,
+      "vetId": selectedVetId,
+      "vetName": selectedVetName,
+      "date": selectedDate.toIso8601String(),
+      "time": selectedTime,
+      "status": "pending",
+      "createdAt": DateTime.now().toIso8601String(),
+    });
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Appointment booked successfully!")),
+      );
+      Navigator.pop(context);
+    }
   }
 
   Widget _bottomNavBar() {
     return BottomNavigationBar(
       selectedItemColor: Colors.green,
       unselectedItemColor: Colors.grey,
-      currentIndex: 3, // Manage tab
+      currentIndex: 3,
       items: const [
         BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
         BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Discover'),

@@ -1,24 +1,43 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:pawfectcare/auth_service.dart';
 
 class VetDashboardScreen extends StatelessWidget {
   const VetDashboardScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFEFFAF0), // light green background
+      backgroundColor: const Color(0xFFEFFAF0),
       appBar: AppBar(
         backgroundColor: const Color(0xFF4CAF50),
         elevation: 0,
-        title: const Text(
-          'Welcome, Dr. Kashan',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-          ),
+        title: FutureBuilder<DocumentSnapshot>(
+          future: FirebaseFirestore.instance.collection("users").doc(userId).get(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Text("Welcome...");
+            }
+            if (!snapshot.hasData || !snapshot.data!.exists) {
+              return const Text("Welcome, Vet");
+            }
+            final data = snapshot.data!.data() as Map<String, dynamic>;
+            final name = data["name"] ?? "Veterinarian";
+            return Text(
+              "Welcome, Dr. $name",
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+              ),
+            );
+          },
         ),
       ),
+      drawer: const VetDrawer(),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: SingleChildScrollView(
@@ -35,12 +54,7 @@ class VetDashboardScreen extends StatelessWidget {
                 child: ListView(
                   scrollDirection: Axis.horizontal,
                   children: [
-                    _petCard(
-                      "Bella",
-                      "Golden Retriever",
-                      "2y",
-                      "assets/pet.jpg",
-                    ),
+                    _petCard("Bella", "Golden Retriever", "2y", "assets/pet.jpg"),
                     _petCard("Max", "Pug", "5y", "assets/pet2.png"),
                   ],
                 ),
@@ -51,10 +65,18 @@ class VetDashboardScreen extends StatelessWidget {
                 spacing: 12,
                 runSpacing: 12,
                 children: [
-                  _actionButton(Icons.add_chart, "Add Diagnosis"),
-                  _actionButton(Icons.upload_file, "Upload Files"),
-                  _actionButton(Icons.calendar_today, "Calendar"),
-                  _actionButton(Icons.edit, "Write Blog"),
+                  _actionButton(Icons.pending_actions, "Pending Appts", () {
+                    Navigator.pushNamed(context, "/vetPendingAppointments");
+                  }),
+                  _actionButton(Icons.upcoming, "Upcoming Appts", () {
+                    Navigator.pushNamed(context, "/vetUpcomingAppointments");
+                  }),
+                  _actionButton(Icons.pets, "Patients", () {
+                    Navigator.pushNamed(context, "/vetPatients");
+                  }),
+                  _actionButton(Icons.article, "Blogs", () {
+                    Navigator.pushNamed(context, "/vetBlogs");
+                  }),
                 ],
               ),
             ],
@@ -111,7 +133,7 @@ class VetDashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _actionButton(IconData icon, String label) {
+  Widget _actionButton(IconData icon, String label, VoidCallback onTap) {
     return ElevatedButton.icon(
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.white,
@@ -122,9 +144,79 @@ class VetDashboardScreen extends StatelessWidget {
           side: const BorderSide(color: Colors.grey),
         ),
       ),
-      onPressed: () {},
+      onPressed: onTap,
       icon: Icon(icon),
       label: Text(label),
+    );
+  }
+}
+
+class VetDrawer extends StatelessWidget {
+  const VetDrawer({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+
+    return Drawer(
+      backgroundColor: const Color(0xFFEFFAF0),
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          FutureBuilder<DocumentSnapshot>(
+            future: FirebaseFirestore.instance.collection("users").doc(userId).get(),
+            builder: (context, snapshot) {
+              String name = "Vet";
+              String email = "";
+              String imageUrl = "";
+              if (snapshot.hasData && snapshot.data!.exists) {
+                final data = snapshot.data!.data() as Map<String, dynamic>;
+                name = data["name"] ?? "Vet";
+                email = data["email"] ?? "";
+                imageUrl = data["profileImage"] ?? "";
+              }
+              return UserAccountsDrawerHeader(
+                decoration: const BoxDecoration(color: Color(0xFF4CAF50)),
+                accountName: Text(
+                  name,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                accountEmail: Text(email),
+                currentAccountPicture: CircleAvatar(
+                  backgroundImage: imageUrl.isNotEmpty ? NetworkImage(imageUrl) : null,
+                  child: imageUrl.isEmpty
+                      ? const Icon(Icons.person, color: Colors.white, size: 40)
+                      : null,
+                ),
+              );
+            },
+          ),
+          _drawerItem(context, Icons.dashboard, 'Dashboard', '/vetdashboard'),
+          _drawerItem(context, Icons.calendar_today, 'Appointments', '/appointmentcalendar'),
+          _drawerItem(context, Icons.pets, 'Patients', '/vetPatients'),
+          _drawerItem(context, Icons.article, 'Blogs', '/vetBlogs'),
+          _drawerItem(context, Icons.settings, 'Profile Settings', '/vetProfile'),
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.logout),
+            title: const Text('Logout'),
+            onTap: () async {
+              await AuthService().logoutUser();
+              if (context.mounted) {
+                Navigator.pushNamedAndRemoveUntil(context, "/login", (route) => false);
+              }
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _drawerItem(BuildContext context, IconData icon, String title, String route) {
+    return ListTile(
+      leading: Icon(icon),
+      title: Text(title),
+      onTap: () => Navigator.pushNamed(context, route),
     );
   }
 }
