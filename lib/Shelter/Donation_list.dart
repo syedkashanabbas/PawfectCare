@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:pawfectcare/Shelter/ShelterDrawer.dart';
 
 class DonationListScreen extends StatefulWidget {
   const DonationListScreen({super.key});
@@ -44,6 +45,7 @@ class _DonationListScreenState extends State<DonationListScreen> {
         backgroundColor: const Color(0xFF4CAF50),
         title: const Text('Donations'),
       ),
+      drawer: const ShelterDrawer(),
       body: _donations.isEmpty
           ? const Center(child: CircularProgressIndicator())
           : ListView.builder(

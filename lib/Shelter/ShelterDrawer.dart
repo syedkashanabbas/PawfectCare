@@ -32,6 +32,8 @@ class ShelterDrawer extends StatelessWidget {
           _buildItem(context, Icons.edit_note, 'Add Story', '/addstory'),
           _buildItem(context, Icons.volunteer_activism, 'Volunteer Form', '/volunteer'),
           _buildItem(context, Icons.attach_money, 'Donation Form', '/donation'),
+          _buildItem(context, Icons.volunteer_activism, 'Volunteers List', '/volunteerlist'),
+          _buildItem(context, Icons.attach_money, 'Donations List', '/donationlist'),
           const Divider(),
           _buildItem(context, Icons.logout, 'Logout', '/login'),
         ],

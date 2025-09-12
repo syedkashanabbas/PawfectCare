@@ -18,6 +18,7 @@ import 'package:pawfectcare/Petowner/Add_edit.dart';
 import 'package:pawfectcare/Petowner/Dashboard.dart';
 import 'package:pawfectcare/Petowner/Pethealth.dart';
 import 'package:pawfectcare/Shelter/Add_edit_pet_listing.dart';
+import 'package:pawfectcare/Shelter/Add_editblog.dart';
 import 'package:pawfectcare/Shelter/Add_story.dart';
 import 'package:pawfectcare/Shelter/Addoption_request.dart';
 import 'package:pawfectcare/Shelter/Dashboard.dart';
@@ -27,6 +28,10 @@ import 'package:pawfectcare/Shelter/Petlisting.dart';
 import 'package:pawfectcare/Shelter/Success_story.dart';
 import 'package:pawfectcare/Shelter/Volunteer_form.dart';
 import 'package:pawfectcare/Shelter/Volunteer_list.dart';
+import 'package:pawfectcare/Store/Store_product_detail.dart';
+import 'package:pawfectcare/Store/Store_product_list.dart';
+import 'package:pawfectcare/Store/Store_home.dart';
+import 'package:pawfectcare/Store/Store_wishlist.dart';
 import 'package:pawfectcare/Vet/AddDiagnosisScreen.dart';
 import 'package:pawfectcare/Vet/AppointmentCalendarScreen.dart';
 import 'package:pawfectcare/Vet/AssignedPetsScreen.dart';
@@ -105,6 +110,7 @@ class MyApp extends StatelessWidget {
         '/donation': (context) => const DonationFormScreen(),
         '/donationlist': (context) => const DonationListScreen(),
         '/volunteerlist': (context) => const VolunteerListScreen(),
+        '/add_editblog': (context) => const AddEditBlogScreen(),
 
         // Common Screens URLs
         '/homescreen': (context) => const HomeScreen(role: 'Pet Owner'),
@@ -117,6 +123,13 @@ class MyApp extends StatelessWidget {
         // Common Screens URLs
         '/unifiedcalender': (context) => const UnifiedCalendarView(),
         '/appointmentdetails': (context) => const AppointmentDetailsScreen(),
+
+        // Store Screens URLs
+        '/storehome': (context) => const StoreHomeScreen(),
+        '/storelist': (context) => const ProductListScreen(),
+        '/storedetail': (context) => const  ProductDetailsScreen(),
+        '/storewishlist': (context) => const  WishlistScreen(),
+
 
 
         
