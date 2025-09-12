@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:pawfectcare/Shelter/ShelterDrawer.dart';
 
 class VolunteerFormScreen extends StatefulWidget {
@@ -16,6 +17,11 @@ class _VolunteerFormScreenState extends State<VolunteerFormScreen> {
   final _reasonController = TextEditingController();
   String? _availability;
 
+  bool _isLoading = false;
+
+  final DatabaseReference dbRef =
+      FirebaseDatabase.instance.ref("volunteers"); // node volunteers
+
   final List<String> _availabilityOptions = [
     'Weekdays',
     'Weekends',
@@ -23,13 +29,59 @@ class _VolunteerFormScreenState extends State<VolunteerFormScreen> {
     'Flexible',
   ];
 
+  Future<void> _submitForm() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isLoading = true);
+
+    final volunteerData = {
+      "name": _nameController.text.trim(),
+      "email": _emailController.text.trim(),
+      "phone": _phoneController.text.trim(),
+      "availability": _availability ?? "",
+      "reason": _reasonController.text.trim(),
+      "createdAt": DateTime.now().toIso8601String(),
+    };
+
+    await dbRef.push().set(volunteerData);
+
+    setState(() => _isLoading = false);
+
+    if (mounted) {
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text("Success"),
+          content: const Text("Volunteer form submitted successfully!"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(ctx); // close dialog
+                _formKey.currentState!.reset();
+                _nameController.clear();
+                _emailController.clear();
+                _phoneController.clear();
+                _reasonController.clear();
+                setState(() {
+                  _availability = null;
+                });
+              },
+              child: const Text("OK"),
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFEFFAF0),
       appBar: AppBar(
         backgroundColor: const Color(0xFF4CAF50),
-        title: const Text('Volunteer Signup', style: TextStyle(color: Colors.white)),
+        title: const Text('Volunteer Signup',
+            style: TextStyle(color: Colors.white)),
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       drawer: const ShelterDrawer(),
@@ -69,7 +121,8 @@ class _VolunteerFormScreenState extends State<VolunteerFormScreen> {
               DropdownButtonFormField<String>(
                 value: _availability,
                 items: _availabilityOptions
-                    .map((opt) => DropdownMenuItem(value: opt, child: Text(opt)))
+                    .map((opt) =>
+                        DropdownMenuItem(value: opt, child: Text(opt)))
                     .toList(),
                 onChanged: (value) => setState(() => _availability = value),
                 decoration: _inputDecoration("Select availability"),
@@ -85,21 +138,19 @@ class _VolunteerFormScreenState extends State<VolunteerFormScreen> {
               ),
               const SizedBox(height: 24),
 
-              ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Form submitted (dummy logic).")),
-                    );
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF4CAF50),
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                ),
-                child: const Text("Submit", style: TextStyle(fontSize: 16)),
-              ),
+              _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : ElevatedButton(
+                      onPressed: _submitForm,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF4CAF50),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                      ),
+                      child: const Text("Submit",
+                          style: TextStyle(fontSize: 16)),
+                    ),
             ],
           ),
         ),
@@ -116,7 +167,8 @@ class _VolunteerFormScreenState extends State<VolunteerFormScreen> {
       hintText: hint,
       filled: true,
       fillColor: Colors.white,
-      contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+      contentPadding:
+          const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
         borderSide: BorderSide.none,
