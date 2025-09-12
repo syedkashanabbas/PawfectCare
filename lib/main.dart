@@ -22,9 +22,11 @@ import 'package:pawfectcare/Shelter/Add_story.dart';
 import 'package:pawfectcare/Shelter/Addoption_request.dart';
 import 'package:pawfectcare/Shelter/Dashboard.dart';
 import 'package:pawfectcare/Shelter/Donation_form.dart';
+import 'package:pawfectcare/Shelter/Donation_list.dart';
 import 'package:pawfectcare/Shelter/Petlisting.dart';
 import 'package:pawfectcare/Shelter/Success_story.dart';
 import 'package:pawfectcare/Shelter/Volunteer_form.dart';
+import 'package:pawfectcare/Shelter/Volunteer_list.dart';
 import 'package:pawfectcare/Vet/AddDiagnosisScreen.dart';
 import 'package:pawfectcare/Vet/AppointmentCalendarScreen.dart';
 import 'package:pawfectcare/Vet/AssignedPetsScreen.dart';
@@ -101,6 +103,8 @@ class MyApp extends StatelessWidget {
         '/addstory': (context) => const AddStoryScreen(),
         '/volunteer': (context) => const VolunteerFormScreen(),
         '/donation': (context) => const DonationFormScreen(),
+        '/donationlist': (context) => const DonationListScreen(),
+        '/volunteerlist': (context) => const VolunteerListScreen(),
 
         // Common Screens URLs
         '/homescreen': (context) => const HomeScreen(role: 'Pet Owner'),
