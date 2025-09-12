@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:pawfectcare/Shelter/ShelterDrawer.dart';
 
 class SuccessStoriesScreen extends StatefulWidget {
   const SuccessStoriesScreen({super.key});
@@ -40,6 +41,7 @@ class _SuccessStoriesScreenState extends State<SuccessStoriesScreen> {
         title: const Text('Add Success Story', style: TextStyle(color: Colors.white)),
         iconTheme: const IconThemeData(color: Colors.white),
       ),
+      drawer: const ShelterDrawer(),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Form(

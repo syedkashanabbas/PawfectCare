@@ -17,6 +17,7 @@ import 'package:pawfectcare/Petowner/Productdetails.dart';
 import 'package:pawfectcare/Petowner/Add_edit.dart';
 import 'package:pawfectcare/Petowner/Dashboard.dart';
 import 'package:pawfectcare/Petowner/Pethealth.dart';
+import 'package:pawfectcare/Shelter/Add_edit_pet_listing.dart';
 import 'package:pawfectcare/Shelter/Add_story.dart';
 import 'package:pawfectcare/Shelter/Addoption_request.dart';
 import 'package:pawfectcare/Shelter/Dashboard.dart';
@@ -94,7 +95,7 @@ class MyApp extends StatelessWidget {
         // Shelter Dashboard Screens URLs
         '/shelterdashboard': (context) => const ShelterDashboardScreen(),
         '/petlisting': (context) => const PetListingScreen(),
-        '/add_editlisting': (context) => const AddEditPetProfileScreen(),
+        '/add_editlisting': (context) => const ShelterPetProfileScreen(),
         '/adoption': (context) => const AdoptionRequestsScreen(),
         '/successstory': (context) => const SuccessStoriesScreen(),
         '/addstory': (context) => const AddStoryScreen(),

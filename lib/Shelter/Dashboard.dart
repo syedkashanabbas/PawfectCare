@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:pawfectcare/Shelter/ShelterDrawer.dart';
 
 class ShelterDashboardScreen extends StatelessWidget {
   const ShelterDashboardScreen({super.key});
@@ -13,9 +14,9 @@ class ShelterDashboardScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: greenColor,
         title: const Text("Shelter Dashboard", style: TextStyle(color: Colors.white)),
-        leading: const BackButton(color: Colors.white),
+        // leading: const BackButton(color: Colors.white),
       ),
-
+      drawer: const ShelterDrawer(),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(

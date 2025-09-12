@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:pawfectcare/Shelter/ShelterDrawer.dart';
 
 class PetListingScreen extends StatelessWidget {
   const PetListingScreen({super.key});
@@ -16,6 +17,7 @@ class PetListingScreen extends StatelessWidget {
         title: const Text('All Pets', style: TextStyle(color: Colors.white)),
         iconTheme: const IconThemeData(color: Colors.white),
       ),
+      drawer: const ShelterDrawer(),
       floatingActionButton: FloatingActionButton(
         backgroundColor: const Color(0xFF4CAF50),
         onPressed: () {

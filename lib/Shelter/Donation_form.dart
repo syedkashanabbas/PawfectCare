@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pawfectcare/Shelter/ShelterDrawer.dart';
 
 class DonationFormScreen extends StatefulWidget {
   const DonationFormScreen({super.key});
@@ -27,6 +28,7 @@ class _DonationFormScreenState extends State<DonationFormScreen> {
         title: const Text('Make a Donation', style: TextStyle(color: Colors.white)),
         iconTheme: const IconThemeData(color: Colors.white),
       ),
+      drawer: const ShelterDrawer(),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Form(

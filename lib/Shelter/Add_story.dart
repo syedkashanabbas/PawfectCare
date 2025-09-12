@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:http/http.dart' as http;
+import 'package:pawfectcare/Shelter/ShelterDrawer.dart';
 
 class AddStoryScreen extends StatefulWidget {
   const AddStoryScreen({super.key});
@@ -124,6 +125,7 @@ class _AddStoryScreenState extends State<AddStoryScreen> {
         title: const Text('Add New Story', style: TextStyle(color: Colors.white)),
         iconTheme: const IconThemeData(color: Colors.white),
       ),
+      drawer: const ShelterDrawer(),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Form(

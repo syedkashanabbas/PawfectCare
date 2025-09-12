@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pawfectcare/Shelter/ShelterDrawer.dart';
 
 class AdoptionRequestsScreen extends StatelessWidget {
   const AdoptionRequestsScreen({super.key});
@@ -33,6 +34,7 @@ class AdoptionRequestsScreen extends StatelessWidget {
         title: const Text('Adoption Requests', style: TextStyle(color: Colors.white)),
         iconTheme: const IconThemeData(color: Colors.white),
       ),
+      drawer: const ShelterDrawer(),
       body: ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: adoptionRequests.length,

@@ -1,15 +1,17 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:pawfectcare/Shelter/ShelterDrawer.dart';
 
-class AddEditPetProfileScreen extends StatefulWidget {
-  const AddEditPetProfileScreen({super.key});
+class ShelterPetProfileScreen extends StatefulWidget {
+  const ShelterPetProfileScreen({super.key});
 
   @override
-  State<AddEditPetProfileScreen> createState() => _AddEditPetProfileScreenState();
+  State<ShelterPetProfileScreen> createState() => _ShelterPetProfileScreenState();
 }
 
-class _AddEditPetProfileScreenState extends State<AddEditPetProfileScreen> {
+class _ShelterPetProfileScreenState extends State<ShelterPetProfileScreen> {
+
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _ageController = TextEditingController();
@@ -36,7 +38,16 @@ class _AddEditPetProfileScreenState extends State<AddEditPetProfileScreen> {
         backgroundColor: const Color(0xFF4CAF50),
         title: const Text('Add / Edit Pet', style: TextStyle(color: Colors.white)),
         iconTheme: const IconThemeData(color: Colors.white),
+        automaticallyImplyLeading: false, // stop Flutter from auto-deciding
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
+        ),
       ),
+
+      drawer: const ShelterDrawer(),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Form(

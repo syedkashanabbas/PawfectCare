@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pawfectcare/Shelter/ShelterDrawer.dart';
 
 class VolunteerFormScreen extends StatefulWidget {
   const VolunteerFormScreen({super.key});
@@ -31,6 +32,7 @@ class _VolunteerFormScreenState extends State<VolunteerFormScreen> {
         title: const Text('Volunteer Signup', style: TextStyle(color: Colors.white)),
         iconTheme: const IconThemeData(color: Colors.white),
       ),
+      drawer: const ShelterDrawer(),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Form(
