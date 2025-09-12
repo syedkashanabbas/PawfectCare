@@ -4,6 +4,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:pawfectcare/Petowner/PetOwnerDrawer.dart';
 import 'package:pawfectcare/auth_service.dart';
 import 'package:pawfectcare/Petowner/Add_edit.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class PetOwnerDashboard extends StatelessWidget {
   const PetOwnerDashboard({super.key});
@@ -17,7 +18,23 @@ class PetOwnerDashboard extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.green[600],
         elevation: 0,
-        title: const Text('Hey Pixel Posse,'),
+        title: FutureBuilder<DocumentSnapshot>(
+          future: FirebaseFirestore.instance
+              .collection("users")
+              .doc(FirebaseAuth.instance.currentUser?.uid)
+              .get(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Text("Hey...");
+            }
+            if (!snapshot.hasData || !snapshot.data!.exists) {
+              return const Text("Hey User,");
+            }
+            final data = snapshot.data!.data() as Map<String, dynamic>;
+            final name = data["name"] ?? "User";
+            return Text("Hey $name,");
+          },
+        ),
         actions: [
           IconButton(icon: const Icon(Icons.notifications), onPressed: () {}),
           IconButton(
@@ -37,8 +54,6 @@ class PetOwnerDashboard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _myPetsSection(userId),
-            const SizedBox(height: 16),
-            _locationAndStatusSection(),
             const SizedBox(height: 16),
             _healthReminderSection(),
             const SizedBox(height: 16),
@@ -66,6 +81,7 @@ class PetOwnerDashboard extends StatelessWidget {
     );
   }
 
+  // ================== MY PETS ==================
   Widget _myPetsSection(String? userId) {
     final dbRef = FirebaseDatabase.instance.ref("pets");
 
@@ -78,7 +94,7 @@ class PetOwnerDashboard extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         SizedBox(
-          height: 110,
+          height: 120,
           child: StreamBuilder(
             stream: dbRef.orderByChild("ownerId").equalTo(userId).onValue,
             builder: (context, snapshot) {
@@ -86,28 +102,26 @@ class PetOwnerDashboard extends StatelessWidget {
                 return const Center(child: CircularProgressIndicator());
               }
               if (!snapshot.hasData || snapshot.data!.snapshot.value == null) {
-                return Row(
-                  children: [
-                    _addPetButton(context),
-                  ],
-                );
+                return Row(children: [_addPetButton(context)]);
               }
 
               final petsMap = Map<dynamic, dynamic>.from(
                 snapshot.data!.snapshot.value as Map,
               );
 
-              final pets = petsMap.values.toList();
+              final pets = petsMap.entries.toList();
 
               return ListView.builder(
                 scrollDirection: Axis.horizontal,
-                itemCount: pets.length + 1, // +1 for Add button
+                itemCount: pets.length + 1,
                 itemBuilder: (context, index) {
-                  if (index == pets.length) {
-                    return _addPetButton(context);
-                  }
-                  final pet = Map<String, dynamic>.from(pets[index]);
+                  if (index == pets.length) return _addPetButton(context);
+
+                  final pet = Map<String, dynamic>.from(pets[index].value);
+                  final petId = pets[index].key;
                   return _petAvatar(
+                    context,
+                    petId,
                     pet['name'] ?? "Pet",
                     pet['imageUrl'] ?? "",
                   ).paddingSymmetric(horizontal: 10);
@@ -120,16 +134,39 @@ class PetOwnerDashboard extends StatelessWidget {
     );
   }
 
-  Widget _petAvatar(String name, String imageUrl) {
+  Widget _petAvatar(BuildContext context, String petId, String name, String imageUrl) {
+    final dbRef = FirebaseDatabase.instance.ref("pets");
+
     return Column(
       children: [
-        CircleAvatar(
-          radius: 28,
-          backgroundImage:
-              imageUrl.isNotEmpty ? NetworkImage(imageUrl) : null,
-          child: imageUrl.isEmpty
-              ? const Icon(Icons.pets, size: 28, color: Colors.grey)
-              : null,
+        Stack(
+          children: [
+            CircleAvatar(
+              radius: 28,
+              backgroundImage: imageUrl.isNotEmpty ? NetworkImage(imageUrl) : null,
+              child: imageUrl.isEmpty
+                  ? const Icon(Icons.pets, size: 28, color: Colors.grey)
+                  : null,
+            ),
+            Positioned(
+              right: -4,
+              top: -4,
+              child: PopupMenuButton<String>(
+                onSelected: (val) async {
+                  if (val == "delete") {
+                    await dbRef.child(petId).remove();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Pet deleted")),
+                    );
+                  }
+                },
+                itemBuilder: (context) => [
+                  const PopupMenuItem(value: "delete", child: Text("Delete")),
+                ],
+                icon: const Icon(Icons.more_vert, size: 18),
+              ),
+            )
+          ],
         ),
         const SizedBox(height: 4),
         Text(name),
@@ -142,9 +179,7 @@ class PetOwnerDashboard extends StatelessWidget {
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (_) => const AddEditPetProfileScreen(),
-          ),
+          MaterialPageRoute(builder: (_) => const AddEditPetProfileScreen()),
         );
       },
       child: Column(
@@ -161,23 +196,12 @@ class PetOwnerDashboard extends StatelessWidget {
     ).paddingSymmetric(horizontal: 10);
   }
 
-  Widget _locationAndStatusSection() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        _infoCard(Icons.location_on, 'Pet Location', 'Track Pets'),
-        _infoCard(Icons.health_and_safety, 'Pet Status', 'Check Vitals'),
-      ],
-    );
-  }
+  // ================== STATIC SECTIONS ==================
+  Widget _healthReminderSection() =>
+      _infoCard(Icons.vaccines, 'Health Reminders', 'Vaccines, Deworming');
 
-  Widget _healthReminderSection() {
-    return _infoCard(Icons.vaccines, 'Health Reminders', 'Vaccines, Deworming');
-  }
-
-  Widget _appointmentsSection() {
-    return _infoCard(Icons.calendar_today, 'Appointments', 'Upcoming & Past');
-  }
+  Widget _appointmentsSection() =>
+      _infoCard(Icons.calendar_today, 'Appointments', 'Upcoming & Past');
 
   Widget _infoCard(IconData icon, String title, String subtitle) {
     return Container(
@@ -251,14 +275,10 @@ class PetOwnerDashboard extends StatelessWidget {
     );
   }
 
-  Widget _blogTipsSection() {
-    return _infoCard(
-      Icons.article,
-      'Pet Care Tips',
-      'Nutrition, Training, First Aid',
-    );
-  }
+  Widget _blogTipsSection() =>
+      _infoCard(Icons.article, 'Pet Care Tips', 'Nutrition, Training, First Aid');
 
+  // ================== VETS SECTION ==================
   Widget _vetsSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -268,21 +288,36 @@ class PetOwnerDashboard extends StatelessWidget {
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 8),
-        _vetCard(
-          name: 'Dr. Nambuvan',
-          imageUrl: 'https://i.imgur.com/dr.jpg',
-          lastVisit: '25/11/2022',
+        StreamBuilder<QuerySnapshot>(
+          stream: FirebaseFirestore.instance
+              .collection("users")
+              .where("role", isEqualTo: "Veterinarian")
+              .snapshots(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+              return const Text("No vets available");
+            }
+
+            return Column(
+              children: snapshot.data!.docs.map((doc) {
+                final data = doc.data() as Map<String, dynamic>;
+                final name = data["name"] ?? "Vet";
+                final imageUrl = data["profileImage"] ?? "";
+                return _vetCard(name: name, imageUrl: imageUrl);
+              }).toList(),
+            );
+          },
         ),
       ],
     );
   }
 
-  Widget _vetCard({
-    required String name,
-    required String imageUrl,
-    required String lastVisit,
-  }) {
+  Widget _vetCard({required String name, required String imageUrl}) {
     return Container(
+      margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -290,17 +325,18 @@ class PetOwnerDashboard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          CircleAvatar(backgroundImage: NetworkImage(imageUrl), radius: 30),
+          CircleAvatar(
+            backgroundImage:
+                imageUrl.isNotEmpty ? NetworkImage(imageUrl) : null,
+            radius: 30,
+            child: imageUrl.isEmpty
+                ? const Icon(Icons.person, color: Colors.white)
+                : null,
+          ),
           const SizedBox(width: 12),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                const Text('⭐ 5.0 (100 reviews)'),
-                Text('Last Visit: $lastVisit'),
-              ],
-            ),
+            child: Text(name,
+                style: const TextStyle(fontWeight: FontWeight.bold)),
           ),
           ElevatedButton(
             onPressed: () {},
