@@ -75,6 +75,17 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       'products': products,
       'totalPrice': totalPrice,
     });
+    await FirebaseFirestore.instance
+        .collection('carts')
+        .doc(user!.uid)
+        .collection('items')
+        .get()
+        .then((snapshot) {
+      for (var doc in snapshot.docs) {
+        doc.reference.delete();
+      }
+    });
+
 
     ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Order placed successfully!")));
