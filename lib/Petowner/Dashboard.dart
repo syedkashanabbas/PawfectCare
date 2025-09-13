@@ -36,9 +36,86 @@ class PetOwnerDashboard extends StatelessWidget {
           },
         ),
         actions: [
-          IconButton(icon: const Icon(Icons.notifications), onPressed: () {}),
+          StreamBuilder<DatabaseEvent>(
+            stream: FirebaseDatabase.instance
+                .ref("notifications/${FirebaseAuth.instance.currentUser?.uid}")
+                .orderByChild("createdAt")
+                .limitToLast(5)
+                .onValue,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Padding(
+                  padding: EdgeInsets.all(12),
+                  child: SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
+                  ),
+                );
+              }
+
+              final notifs = <Map<String, dynamic>>[];
+              if (snapshot.hasData && snapshot.data!.snapshot.value != null) {
+                final raw = Map<dynamic, dynamic>.from(
+                  snapshot.data!.snapshot.value as Map,
+                );
+                raw.forEach((key, value) {
+                  final n = Map<String, dynamic>.from(value);
+                  n["id"] = key;
+                  notifs.add(n);
+                });
+                notifs.sort((a, b) => (b["createdAt"] ?? "")
+                    .toString()
+                    .compareTo((a["createdAt"] ?? "").toString()));
+              }
+
+              return PopupMenuButton<Map<String, dynamic>>(
+                icon: const Icon(Icons.notifications, color: Colors.white),
+                itemBuilder: (ctx) {
+                  if (notifs.isEmpty) {
+                    return [
+                      const PopupMenuItem(
+                        child: Text("No notifications"),
+                      )
+                    ];
+                  }
+                  return notifs.map((n) {
+                    final read = n["read"] == true;
+                    return PopupMenuItem<Map<String, dynamic>>(
+                      value: n,
+                      child: ListTile(
+                        leading: Icon(
+                          read
+                              ? Icons.notifications_none
+                              : Icons.notifications_active,
+                          color: Colors.green[700],
+                        ),
+                        title: Text(
+                          n["title"] ?? "Notification",
+                          style: TextStyle(
+                            fontWeight:
+                            read ? FontWeight.normal : FontWeight.bold,
+                          ),
+                        ),
+                        subtitle: Text(n["message"] ?? ""),
+                      ),
+                    );
+                  }).toList();
+                },
+                onSelected: (notif) {
+                  FirebaseDatabase.instance
+                      .ref("notifications/${FirebaseAuth.instance.currentUser?.uid}")
+                      .child(notif["id"])
+                      .update({"read": true});
+                },
+              );
+            },
+          ),
           IconButton(
-            icon: const Icon(Icons.logout),
+            icon: const Icon(Icons.logout, color: Colors.white),
             tooltip: "Logout",
             onPressed: () async {
               await AuthService().logoutUser();
@@ -47,6 +124,7 @@ class PetOwnerDashboard extends StatelessWidget {
           ),
         ],
       ),
+
       drawer: const PetOwnerDrawer(),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -55,13 +133,11 @@ class PetOwnerDashboard extends StatelessWidget {
           children: [
             _myPetsSection(userId),
             const SizedBox(height: 16),
-            _healthReminderSection(),
-            const SizedBox(height: 16),
             _appointmentsSection(context),
             const SizedBox(height: 16),
             _petFoodSection(),
             const SizedBox(height: 16),
-            _blogTipsSection(),
+            _blogTipsSection(context),
             const SizedBox(height: 16),
             _vetsSection(),
           ],
@@ -196,10 +272,6 @@ class PetOwnerDashboard extends StatelessWidget {
     ).paddingSymmetric(horizontal: 10);
   }
 
-  // ================== STATIC SECTIONS ==================
-  Widget _healthReminderSection() =>
-      _infoCard(Icons.vaccines, 'Health Reminders', 'Vaccines, Deworming');
-
   Widget _appointmentsSection(BuildContext context) {
     return GestureDetector(
       onTap: () {
@@ -208,6 +280,7 @@ class PetOwnerDashboard extends StatelessWidget {
       child: _infoCard(Icons.calendar_today, 'Appointments', 'Upcoming & Past'),
     );
   }
+
   Widget _infoCard(IconData icon, String title, String subtitle) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 6),
@@ -277,6 +350,7 @@ class PetOwnerDashboard extends StatelessWidget {
       ],
     );
   }
+
   Widget _productCard(String title, String imageUrl) {
     return Container(
       width: 140,
@@ -302,8 +376,16 @@ class PetOwnerDashboard extends StatelessWidget {
     );
   }
 
-  Widget _blogTipsSection() =>
-      _infoCard(Icons.article, 'Pet Care Tips', 'Nutrition, Training, First Aid');
+  Widget _blogTipsSection(BuildContext context) => GestureDetector(
+    onTap: () {
+      Navigator.pushNamed(context, '/bloglist');
+    },
+    child: _infoCard(
+      Icons.article,
+      'Pet Care Tips',
+      'Nutrition, Training, First Aid',
+    ),
+  );
 
   // ================== VETS SECTION ==================
   Widget _vetsSection() {
@@ -354,7 +436,7 @@ class PetOwnerDashboard extends StatelessWidget {
         children: [
           CircleAvatar(
             backgroundImage:
-                imageUrl.isNotEmpty ? NetworkImage(imageUrl) : null,
+            imageUrl.isNotEmpty ? NetworkImage(imageUrl) : null,
             radius: 30,
             child: imageUrl.isEmpty
                 ? const Icon(Icons.person, color: Colors.white)
@@ -362,8 +444,7 @@ class PetOwnerDashboard extends StatelessWidget {
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: Text(name,
-                style: const TextStyle(fontWeight: FontWeight.bold)),
+            child: Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
           ),
           ElevatedButton(
             onPressed: () {},

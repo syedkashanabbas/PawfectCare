@@ -24,6 +24,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
   ];
 
   final DatabaseReference dbRef = FirebaseDatabase.instance.ref("appointments");
+  final DatabaseReference notifRef = FirebaseDatabase.instance.ref("notifications");
 
   @override
   Widget build(BuildContext context) {
@@ -82,7 +83,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
             const Text("Choose a Pet", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 10),
 
-            // Fetch pets from Firebase
+            // Fetch pets
             StreamBuilder<DatabaseEvent>(
               stream: FirebaseDatabase.instance
                   .ref('pets')
@@ -103,8 +104,6 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                   return {
                     'id': entry.key,
                     'name': entry.value['name'],
-                    'age': entry.value['age'],
-                    'breed': entry.value['breed'],
                   };
                 }).toList();
 
@@ -139,18 +138,11 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
             const SizedBox(height: 20),
             const Text("Choose a Date", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 10),
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                color: Colors.grey.shade100,
-              ),
-              padding: const EdgeInsets.all(8),
-              child: CalendarDatePicker(
-                initialDate: selectedDate,
-                firstDate: DateTime.now(),
-                lastDate: DateTime.now().add(const Duration(days: 365)),
-                onDateChanged: (date) => setState(() => selectedDate = date),
-              ),
+            CalendarDatePicker(
+              initialDate: selectedDate,
+              firstDate: DateTime.now(),
+              lastDate: DateTime.now().add(const Duration(days: 365)),
+              onDateChanged: (date) => setState(() => selectedDate = date),
             ),
 
             const SizedBox(height: 20),
@@ -208,7 +200,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
     final userId = FirebaseAuth.instance.currentUser?.uid;
     if (userId == null) return;
 
-    await dbRef.push().set({
+    final appointmentData = {
       "ownerId": userId,
       "vetId": selectedVetId,
       "vetName": selectedVetName,
@@ -218,11 +210,34 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
       "time": selectedTime,
       "status": "pending",
       "createdAt": DateTime.now().toIso8601String(),
+    };
+
+    final newRef = await dbRef.push();
+    await newRef.set(appointmentData);
+
+    // Notifications
+    final ownerMessage = "Your appointment with Dr. $selectedVetName is on ${selectedDate.toLocal().toString().split(' ')[0]} at $selectedTime.";
+    final vetMessage = "You have an appointment with $selectedPetName on ${selectedDate.toLocal().toString().split(' ')[0]} at $selectedTime.";
+
+    await notifRef.child(userId).push().set({
+      "title": "Appointment Booked",
+      "message": ownerMessage,
+      "read": false,
+      "appointmentId": newRef.key,
+      "createdAt": DateTime.now().toIso8601String(),
+    });
+
+    await notifRef.child(selectedVetId!).push().set({
+      "title": "New Appointment",
+      "message": vetMessage,
+      "read": false,
+      "appointmentId": newRef.key,
+      "createdAt": DateTime.now().toIso8601String(),
     });
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Appointment booked successfully!")),
+        const SnackBar(content: Text("Appointment booked & notifications sent!")),
       );
       Navigator.pop(context);
     }

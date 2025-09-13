@@ -68,6 +68,7 @@ class PetOwnerDrawer extends StatelessWidget {
           ),
 
           _drawerItem(context, Icons.dashboard, 'Dashboard', '/petownerdashboard'),
+          _drawerItem(context, Icons.notification_add, 'Notifications', '/notification'),
           _drawerItem(context, Icons.pets, 'Add Pet Profile', '/add_edit'),
           _drawerItem(context, Icons.medical_services, 'Pet Health', '/pethealth'),
           _drawerItem(context, Icons.calendar_today, 'Book Appointment', '/appointment'),

@@ -22,7 +22,6 @@ class _VetDashboardScreenState extends State<VetDashboardScreen> {
     _loadAppointedPets();
   }
 
-  /// ✅ Load only pets with appointments made
   Future<void> _loadAppointedPets() async {
     final userId = FirebaseAuth.instance.currentUser?.uid;
     final apptSnapshot = await FirebaseDatabase.instance
@@ -35,7 +34,6 @@ class _VetDashboardScreenState extends State<VetDashboardScreen> {
 
     final appointments = Map<dynamic, dynamic>.from(apptSnapshot.value as Map);
 
-    // Collect unique petIds
     final petIds = appointments.values
         .map((e) => (e as Map)["petId"])
         .where((id) => id != null)
@@ -44,10 +42,11 @@ class _VetDashboardScreenState extends State<VetDashboardScreen> {
     final List<Map<String, dynamic>> pets = [];
 
     for (var petId in petIds) {
-      final petSnap = await FirebaseDatabase.instance.ref("pets/$petId").get(); // Fetch from the pets table
+      final petSnap =
+      await FirebaseDatabase.instance.ref("pets/$petId").get();
       if (petSnap.value != null) {
         final pet = Map<String, dynamic>.from(petSnap.value as Map);
-        pet["id"] = petId; // Add petId to the pet data
+        pet["id"] = petId;
         pets.add(pet);
       }
     }
@@ -72,7 +71,7 @@ class _VetDashboardScreenState extends State<VetDashboardScreen> {
       appBar: AppBar(
         backgroundColor: const Color(0xFF4CAF50),
         elevation: 0,
-        title: FutureBuilder<DocumentSnapshot>(  // Get vet name dynamically
+        title: FutureBuilder<DocumentSnapshot>(
           future: FirebaseFirestore.instance.collection("users").doc(userId).get(),
           builder: (context, snapshot) {
             if (!snapshot.hasData || !snapshot.data!.exists) {
@@ -82,6 +81,90 @@ class _VetDashboardScreenState extends State<VetDashboardScreen> {
             return Text("Welcome, Dr. ${data["name"] ?? "Veterinarian"}");
           },
         ),
+        actions: [
+          StreamBuilder<DatabaseEvent>(
+            stream: FirebaseDatabase.instance
+                .ref("notifications/$userId")
+                .orderByChild("createdAt")
+                .limitToLast(5)
+                .onValue,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Padding(
+                  padding: EdgeInsets.all(12),
+                  child: SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                  ),
+                );
+              }
+
+              final notifs = <Map<String, dynamic>>[];
+              if (snapshot.hasData && snapshot.data!.snapshot.value != null) {
+                final raw = Map<dynamic, dynamic>.from(
+                  snapshot.data!.snapshot.value as Map,
+                );
+                raw.forEach((key, value) {
+                  final n = Map<String, dynamic>.from(value);
+                  n["id"] = key;
+                  notifs.add(n);
+                });
+                notifs.sort((a, b) => (b["createdAt"] ?? "")
+                    .toString()
+                    .compareTo((a["createdAt"] ?? "").toString()));
+              }
+
+              return PopupMenuButton<Map<String, dynamic>>(
+                icon: const Icon(Icons.notifications, color: Colors.white),
+                itemBuilder: (ctx) {
+                  if (notifs.isEmpty) {
+                    return [
+                      const PopupMenuItem(
+                        child: Text("No notifications"),
+                      )
+                    ];
+                  }
+                  return notifs.map((n) {
+                    final read = n["read"] == true;
+                    return PopupMenuItem<Map<String, dynamic>>(
+                      value: n,
+                      child: ListTile(
+                        leading: Icon(
+                          read ? Icons.notifications_none : Icons.notifications_active,
+                          color: Colors.green[700],
+                        ),
+                        title: Text(
+                          n["title"] ?? "Notification",
+                          style: TextStyle(
+                            fontWeight: read ? FontWeight.normal : FontWeight.bold,
+                          ),
+                        ),
+                        subtitle: Text(n["message"] ?? ""),
+                      ),
+                    );
+                  }).toList();
+                },
+                onSelected: (notif) {
+                  FirebaseDatabase.instance
+                      .ref("notifications/$userId")
+                      .child(notif["id"])
+                      .update({"read": true});
+                },
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.logout, color: Colors.white),
+            tooltip: "Logout",
+            onPressed: () async {
+              await AuthService().logoutUser();
+              if (context.mounted) {
+                Navigator.pushNamedAndRemoveUntil(context, "/login", (route) => false);
+              }
+            },
+          ),
+        ],
       ),
       drawer: const VetDrawer(),
       body: Padding(
@@ -90,13 +173,10 @@ class _VetDashboardScreenState extends State<VetDashboardScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _sectionTitle("Filter Appointments"),
-
-            // Horizontal scrolling container to prevent overflow
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
                 children: [
-                  // Dropdown for pet selection
                   SizedBox(
                     width: MediaQuery.of(context).size.width * 0.7,
                     child: DropdownButtonFormField<String>(
@@ -108,13 +188,13 @@ class _VetDashboardScreenState extends State<VetDashboardScreen> {
                           borderRadius: BorderRadius.circular(30),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.green, width: 2),
+                          borderSide: const BorderSide(color: Colors.green, width: 2),
                           borderRadius: BorderRadius.circular(30),
                         ),
                       ),
                       items: petList.map((pet) {
                         final id = pet["id"];
-                        final label = "${pet["name"] ?? "Unknown"}"; // Removed breed from label
+                        final label = "${pet["name"] ?? "Unknown"}";
                         return DropdownMenuItem<String>(
                           value: id,
                           child: Text(label),
@@ -134,10 +214,8 @@ class _VetDashboardScreenState extends State<VetDashboardScreen> {
                 ],
               ),
             ),
-
             const SizedBox(height: 10),
             _sectionTitle("Appointments"),
-
             Expanded(
               child: StreamBuilder(
                 stream: FirebaseDatabase.instance
@@ -154,11 +232,10 @@ class _VetDashboardScreenState extends State<VetDashboardScreen> {
 
                   final now = DateTime.now();
                   final todayStart = DateTime(now.year, now.month, now.day);
-                  final todayEnd = todayStart.add(Duration(days: 1));
+                  final todayEnd = todayStart.add(const Duration(days: 1));
 
                   final filteredAppointments = data.values.where((e) {
                     final appt = Map<String, dynamic>.from(e);
-
                     if (appt["date"] != null) {
                       try {
                         final apptDate = DateTime.parse(appt["date"]);
@@ -167,13 +244,11 @@ class _VetDashboardScreenState extends State<VetDashboardScreen> {
                         }
                       } catch (_) {}
                     }
-
                     if (selectedPetId != null && selectedPetId!.isNotEmpty) {
                       if ((appt["petId"] ?? "") != selectedPetId) {
                         return false;
                       }
                     }
-
                     return true;
                   }).toList();
 
@@ -184,30 +259,12 @@ class _VetDashboardScreenState extends State<VetDashboardScreen> {
                   return ListView(
                     children: filteredAppointments.map((e) {
                       final appt = Map<String, dynamic>.from(e);
-
-                      return GestureDetector(
-                        onTap: () async {
-                          // Check if status is "Completed" and navigate to the diagnosis screen
-                          if (appt["status"] == "Completed") {
-                            Navigator.pushNamed(
-                                context,
-                                '/adddiagnosis',
-                                arguments:
-                                  appt["petId"],
-
-                            );
-                          } else {
-                            // If status is not "Completed", show prompt to update status
-                            await _showStatusUpdateDialog(context, appt["status"], e.key);
-                          }
-                        },
-                        child: _appointmentCard(
-                          appt["petName"] ?? "Unknown",
-                          appt["time"] ?? "N/A",
-                          appt["date"] ?? "",
-                          appt["ownerId"] ?? "",
-                          appt["status"] ?? "",
-                        ),
+                      return _appointmentCard(
+                        appt["petName"] ?? "Unknown",
+                        appt["time"] ?? "N/A",
+                        appt["date"] ?? "",
+                        appt["ownerId"] ?? "",
+                        appt["status"] ?? "",
                       );
                     }).toList(),
                   );
@@ -239,65 +296,32 @@ class _VetDashboardScreenState extends State<VetDashboardScreen> {
         ? DateFormat("yyyy-MM-dd").format(DateTime.parse(date))
         : "N/A";
 
-    return GestureDetector(
-      child: Card(
-        margin: const EdgeInsets.only(bottom: 12),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        elevation: 5, // Adds shadow effect for premium feel
-        child: ListTile(
-          leading: const CircleAvatar(backgroundImage: AssetImage("assets/pet.jpg")),
-          title: Text("$pet - $time", style: const TextStyle(fontWeight: FontWeight.bold)),
-          subtitle: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text("Date: $formattedDate"),
-              FutureBuilder<DocumentSnapshot>(
-                future: FirebaseFirestore.instance.collection("users").doc(ownerId).get(),
-                builder: (context, snapshot) {
-                  if (!snapshot.hasData || !snapshot.data!.exists) {
-                    return const Text("Owner: Unknown");
-                  }
-                  final data = snapshot.data!.data() as Map<String, dynamic>;
-                  return Text("Owner: ${data["name"] ?? "Unknown"}");
-                },
-              ),
-            ],
-          ),
-          trailing: const Icon(Icons.arrow_forward_ios, size: 20, color: Colors.green),
-        ),
-      ),
-    );
-  }
-
-  // Function to show status update dialog
-  Future<void> _showStatusUpdateDialog(BuildContext context, String status, String appointmentId) async {
-    if (status != "Completed") {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text("Update Appointment Status"),
-          content: const Text("This appointment is not yet completed. Do you want to mark it as completed?"),
-          actions: [
-            TextButton(
-              onPressed: () async {
-                Navigator.pop(context);
-                // Update the status to 'Completed'
-                await FirebaseDatabase.instance.ref("appointments/$appointmentId").update({
-                  "status": "Completed",
-                });
-                _loadAppointedPets(); // Refresh the list to show updated status
-                print("Appointment marked as completed.");
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      elevation: 5,
+      child: ListTile(
+        leading: const CircleAvatar(backgroundImage: AssetImage("assets/pet.jpg")),
+        title: Text("$pet - $time", style: const TextStyle(fontWeight: FontWeight.bold)),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("Date: $formattedDate"),
+            FutureBuilder<DocumentSnapshot>(
+              future: FirebaseFirestore.instance.collection("users").doc(ownerId).get(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData || !snapshot.data!.exists) {
+                  return const Text("Owner: Unknown");
+                }
+                final data = snapshot.data!.data() as Map<String, dynamic>;
+                return Text("Owner: ${data["name"] ?? "Unknown"}");
               },
-              child: const Text("Yes"),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("No"),
             ),
           ],
         ),
-      );
-    }
+        trailing: const Icon(Icons.arrow_forward_ios, size: 20, color: Colors.green),
+      ),
+    );
   }
 }
 
@@ -341,8 +365,9 @@ class VetDrawer extends StatelessWidget {
           _drawerItem(context, Icons.dashboard, 'Dashboard', '/vetdashboard'),
           _drawerItem(context, Icons.calendar_today, 'Appointments', '/appointmentcalendar'),
           _drawerItem(context, Icons.pets, 'Patients', '/vetPatients'),
-          _drawerItem(context, Icons.article, 'Blogs', '/vetBlogs'),
-          _drawerItem(context, Icons.settings, 'Profile Settings', '/vetProfile'),
+          _drawerItem(context, Icons.article, 'Blogs', '/bloglist'),
+          _drawerItem(context, Icons.settings, 'Notifications', '/notification'),
+          _drawerItem(context, Icons.settings, 'Profile Settings', '/userprofile'),
           const Divider(),
           ListTile(
             leading: const Icon(Icons.logout),
@@ -350,8 +375,7 @@ class VetDrawer extends StatelessWidget {
             onTap: () async {
               await AuthService().logoutUser();
               if (context.mounted) {
-                Navigator.pushNamedAndRemoveUntil(
-                    context, "/login", (route) => false);
+                Navigator.pushNamedAndRemoveUntil(context, "/login", (route) => false);
               }
             },
           ),
