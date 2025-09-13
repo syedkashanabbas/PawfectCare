@@ -1,7 +1,35 @@
 import 'package:flutter/material.dart';
 
-class StoreHomeScreen extends StatelessWidget {
+class StoreHomeScreen extends StatefulWidget {
   const StoreHomeScreen({super.key});
+
+  @override
+  State<StoreHomeScreen> createState() => _StoreHomeScreenState();
+}
+
+class _StoreHomeScreenState extends State<StoreHomeScreen> {
+  final List<Map<String, dynamic>> _cart = [];
+
+  final List<Map<String, dynamic>> _storeItems = List.generate(6, (index) {
+    return {
+      "title": "Store Item ${index + 1}",
+      "price": (index + 1) * 20,
+      "image": "assets/store_placeholder.png",
+    };
+  });
+
+  void _addToCart(Map<String, dynamic> item) {
+    setState(() {
+      _cart.add(item);
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('${item["title"]} added to cart'),
+        duration: const Duration(seconds: 2),
+        backgroundColor: Colors.green,
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -11,24 +39,45 @@ class StoreHomeScreen extends StatelessWidget {
         backgroundColor: const Color(0xFF4CAF50),
         title: const Text('Store', style: TextStyle(color: Colors.white)),
         iconTheme: const IconThemeData(color: Colors.white),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.shopping_cart),
+            onPressed: () {
+              // Show cart contents
+              showModalBottomSheet(
+                context: context,
+                builder: (_) => ListView(
+                  padding: const EdgeInsets.all(16),
+                  children: _cart.isEmpty
+                      ? const [Text("Cart is empty")]
+                      : _cart.map((item) => ListTile(
+                    title: Text(item["title"]),
+                    subtitle: Text("\$${item["price"]}"),
+                  )).toList(),
+                ),
+              );
+            },
+          )
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: GridView.builder(
-          itemCount: 6, // dummy store items
+          itemCount: _storeItems.length,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2, // 2 per row
+            crossAxisCount: 2,
             crossAxisSpacing: 16,
             mainAxisSpacing: 16,
             childAspectRatio: 0.8,
           ),
-          itemBuilder: (context, index) => _storeCard(index),
+          itemBuilder: (context, index) =>
+              _storeCard(_storeItems[index]),
         ),
       ),
     );
   }
 
-  Widget _storeCard(int index) {
+  Widget _storeCard(Map<String, dynamic> item) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -43,9 +92,10 @@ class StoreHomeScreen extends StatelessWidget {
           Container(
             height: 110,
             decoration: BoxDecoration(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+              borderRadius:
+              const BorderRadius.vertical(top: Radius.circular(12)),
               image: DecorationImage(
-                image: AssetImage("assets/store_placeholder.png"),
+                image: AssetImage(item["image"]),
                 fit: BoxFit.cover,
               ),
             ),
@@ -54,7 +104,7 @@ class StoreHomeScreen extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: Text(
-              'Store Item ${index + 1}',
+              item["title"],
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
@@ -62,7 +112,7 @@ class StoreHomeScreen extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: Text(
-              '\$${(index + 1) * 20}',
+              '\$${item["price"]}',
               style: const TextStyle(color: Colors.green),
             ),
           ),
@@ -70,13 +120,15 @@ class StoreHomeScreen extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(8),
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: () => _addToCart(item),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF4CAF50),
                 padding: const EdgeInsets.symmetric(vertical: 10),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8)),
               ),
-              child: const Text("Buy", style: TextStyle(color: Colors.white)),
+              child:
+              const Text("Buy", style: TextStyle(color: Colors.white)),
             ),
           )
         ],
@@ -84,3 +136,4 @@ class StoreHomeScreen extends StatelessWidget {
     );
   }
 }
+
