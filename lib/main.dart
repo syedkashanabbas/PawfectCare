@@ -26,6 +26,7 @@ import 'package:pawfectcare/Shelter/Dashboard.dart';
 import 'package:pawfectcare/Shelter/Donation_form.dart';
 import 'package:pawfectcare/Shelter/Donation_list.dart';
 import 'package:pawfectcare/Shelter/Petlisting.dart';
+import 'package:pawfectcare/Shelter/ShelterBlogListScreen.dart';
 import 'package:pawfectcare/Shelter/Success_story.dart';
 import 'package:pawfectcare/Shelter/Volunteer_form.dart';
 import 'package:pawfectcare/Shelter/Volunteer_list.dart';
@@ -118,6 +119,7 @@ class MyApp extends StatelessWidget {
         '/volunteer': (context) => const VolunteerFormScreen(),
         '/donation': (context) => const DonationFormScreen(),
         '/donationlist': (context) => const DonationListScreen(),
+        '/bloglistshelter': (context) => const ShelterBlogListScreen(),
         '/volunteerlist': (context) => const VolunteerListScreen(),
         '/add_editblog': (context) => const AddEditBlogScreen(),
         '/admin_petlisting': (context) => const AdminPetsListing(),

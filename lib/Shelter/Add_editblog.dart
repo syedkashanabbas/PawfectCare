@@ -1,9 +1,12 @@
 import 'dart:typed_data';
 import 'dart:io' show File;
-
+import 'dart:convert';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 class AddEditBlogScreen extends StatefulWidget {
   const AddEditBlogScreen({super.key});
@@ -33,18 +36,64 @@ class _AddEditBlogScreenState extends State<AddEditBlogScreen> {
     }
   }
 
-  void _onSave() {
+  Future<String?> _uploadToImgBB(Uint8List bytes) async {
+    const apiKey = "7bac27b5a053536ee218ba8a64fc4d13"; // put your key here
+    final url = Uri.parse("https://api.imgbb.com/1/upload?key=$apiKey");
+
+    final request = http.MultipartRequest("POST", url);
+    request.files.add(http.MultipartFile.fromBytes("image", bytes, filename: "blog.jpg"));
+
+    final response = await request.send();
+    if (response.statusCode == 200) {
+      final body = await response.stream.bytesToString();
+      return jsonDecode(body)["data"]["url"];
+    } else {
+      return null;
+    }
+  }
+
+  Future<void> _saveBlog(String title, String desc, String imageUrl) async {
+    final ref = FirebaseDatabase.instance.ref("blogs").push();
+    await ref.set({
+      "title": title,
+      "description": desc,
+      "imageUrl": imageUrl,
+      "createdAt": DateTime.now().toIso8601String(),
+    });
+  }
+
+  void _onSave() async {
     if (!_formKey.currentState!.validate()) return;
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Pretend blog saved.')),
+      const SnackBar(content: Text('Uploading...')),
     );
 
-    _formKey.currentState?.reset();
-    setState(() {
-      _pickedImageWeb = null;
-      _pickedImage = null;
-    });
+    String? imageUrl;
+    if (_hasImage()) {
+      Uint8List bytes = kIsWeb
+          ? _pickedImageWeb!
+          : await File(_pickedImage!.path).readAsBytes();
+      imageUrl = await _uploadToImgBB(bytes);
+    }
+
+    if (imageUrl != null) {
+      await _saveBlog(_titleController.text, _descController.text, imageUrl);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Blog saved successfully!')),
+      );
+
+      _formKey.currentState?.reset();
+      setState(() {
+        _pickedImageWeb = null;
+        _pickedImage = null;
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Image upload failed')),
+      );
+    }
   }
 
   @override
@@ -53,7 +102,7 @@ class _AddEditBlogScreenState extends State<AddEditBlogScreen> {
       backgroundColor: const Color(0xFFEFFAF0),
       appBar: AppBar(
         backgroundColor: const Color(0xFF4CAF50),
-        title: const Text('Add / Edit Blog', style: TextStyle(color: Colors.white)),
+        title: const Text('Add Blog', style: TextStyle(color: Colors.white)),
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: Padding(
@@ -77,7 +126,8 @@ class _AddEditBlogScreenState extends State<AddEditBlogScreen> {
                           : null,
                     ),
                     child: !_hasImage()
-                        ? const Icon(Icons.add_photo_alternate, size: 40, color: Colors.white)
+                        ? const Icon(Icons.add_photo_alternate,
+                        size: 40, color: Colors.white)
                         : null,
                   ),
                 ),
@@ -103,9 +153,11 @@ class _AddEditBlogScreenState extends State<AddEditBlogScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF4CAF50),
                   padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)),
                 ),
-                child: const Text("Save", style: TextStyle(fontSize: 16, color: Colors.white)),
+                child: const Text("Save",
+                    style: TextStyle(fontSize: 16, color: Colors.white)),
               ),
             ],
           ),
@@ -123,8 +175,10 @@ class _AddEditBlogScreenState extends State<AddEditBlogScreen> {
       hintText: hint,
       filled: true,
       fillColor: Colors.white,
-      contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+      contentPadding:
+      const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+      border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
     );
   }
 
