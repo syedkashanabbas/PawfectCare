@@ -28,6 +28,8 @@ import 'package:pawfectcare/Shelter/Petlisting.dart';
 import 'package:pawfectcare/Shelter/Success_story.dart';
 import 'package:pawfectcare/Shelter/Volunteer_form.dart';
 import 'package:pawfectcare/Shelter/Volunteer_list.dart';
+import 'package:pawfectcare/Store/Add_product.dart';
+import 'package:pawfectcare/Store/CartScreen.dart';
 import 'package:pawfectcare/Store/Store_product_detail.dart';
 import 'package:pawfectcare/Store/Store_product_list.dart';
 import 'package:pawfectcare/Store/Store_home.dart';
@@ -127,12 +129,17 @@ class MyApp extends StatelessWidget {
         // Store Screens URLs
         '/storehome': (context) => const StoreHomeScreen(),
         '/storelist': (context) => const ProductListScreen(),
-        '/storedetail': (context) => const  ProductDetailsScreen(),
+        '/storedetail': (context) {
+          final productId = ModalRoute.of(context)!.settings.arguments as String;
+          return ProductDetailsScreen(productId: productId);
+        },
+        '/cart': (context) => const CartScreen(),
         '/storewishlist': (context) => const  WishlistScreen(),
+        '/addproduct': (context) => const  ShelterUploadProductScreen(),
 
 
 
-        
+
 
 
 
