@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:cloud_firestore/cloud_firestore.dart'; // To fetch doctor's name
 
 class PetHealthScreen extends StatefulWidget {
   const PetHealthScreen({Key? key}) : super(key: key);
@@ -58,16 +59,35 @@ class _PetHealthScreenState extends State<PetHealthScreen> {
 
   // Fetch health records based on selected petId
   void fetchHealthRecords(String petId) async {
+    setState(() {
+      isLoading = true; // Show loading state while fetching
+    });
+
     final dbRef = FirebaseDatabase.instance.ref("healthRecords");
 
-    dbRef.orderByChild("petId").equalTo(petId).onValue.listen((event) {
-      final dataMap = Map<dynamic, dynamic>.from(event.snapshot.value as Map);
+    dbRef.child(petId).onValue.listen((event) {
+      final dataMap = event.snapshot.value;
+
       setState(() {
-        healthRecords = dataMap.entries
-            .map((e) => Map<String, dynamic>.from(e.value))
-            .toList();
+        if (dataMap != null && dataMap is Map) {
+          healthRecords = dataMap.entries
+              .map((e) => Map<String, dynamic>.from(e.value))
+              .toList();
+        } else {
+          healthRecords = [];
+        }
+        isLoading = false; // Stop loading after data is fetched
       });
     });
+  }
+
+  // Fetch the doctor's name from Firestore using doctorId
+  Future<String> fetchDoctorName(String doctorId) async {
+    final docSnapshot = await FirebaseFirestore.instance.collection("users").doc(doctorId).get();
+    if (docSnapshot.exists) {
+      return docSnapshot.data()?["name"] ?? "Unknown Doctor";
+    }
+    return "Unknown Doctor";
   }
 
   @override
@@ -79,6 +99,25 @@ class _PetHealthScreenState extends State<PetHealthScreen> {
         backgroundColor: greenColor,
         title: const Text('Pet Health'),
         leading: const BackButton(color: Colors.white),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(40),
+          child: Container(
+            color: greenColor,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: const [
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
+                  child: Text("Wellness", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Text("Medical Records", style: TextStyle(color: Colors.white70)),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -96,28 +135,72 @@ class _PetHealthScreenState extends State<PetHealthScreen> {
 
             // Show records only if a pet is selected
             if (selectedPetId != null && healthRecords.isNotEmpty) ...[
+              // Vaccination Section
               _sectionCard(
                 title: "Vaccinations",
                 onSeeAll: () {},
                 children: healthRecords
-                    .where((record) => record["recordType"] == "vaccination")
+                    .where((record) => record.containsKey("vaccination"))
                     .map((record) => _infoTile(
-                  record["title"] ?? "Untitled",
+                  record["vaccination"] ?? "Untitled",
                   record["date"] ?? "Unknown",
-                  record["doctor"] ?? "Unknown",
+                  fetchDoctorName(record["doctorId"] ?? ""),
                 ))
                     .toList(),
               ),
               const SizedBox(height: 20),
+              // Allergy Section
               _sectionCard(
                 title: "Allergies",
                 onSeeAll: () {},
                 children: healthRecords
-                    .where((record) => record["recordType"] == "allergy")
+                    .where((record) => record.containsKey("allergy"))
                     .map((record) => _infoTile(
-                  record["title"] ?? "Untitled",
+                  record["allergy"] ?? "Untitled",
                   record["date"] ?? "Unknown",
-                  record["doctor"] ?? "Unknown",
+                  fetchDoctorName(record["doctorId"] ?? ""),
+                ))
+                    .toList(),
+              ),
+              const SizedBox(height: 20),
+              // Diagnosis Section
+              _sectionCard(
+                title: "Diagnosis",
+                onSeeAll: () {},
+                children: healthRecords
+                    .where((record) => record.containsKey("diagnosis"))
+                    .map((record) => _infoTile(
+                  record["diagnosis"] ?? "Untitled",
+                  record["date"] ?? "Unknown",
+                  fetchDoctorName(record["doctorId"] ?? ""),
+                ))
+                    .toList(),
+              ),
+              const SizedBox(height: 20),
+              // Prescription Section
+              _sectionCard(
+                title: "Prescriptions",
+                onSeeAll: () {},
+                children: healthRecords
+                    .where((record) => record.containsKey("prescription"))
+                    .map((record) => _infoTile(
+                  record["prescription"] ?? "Untitled",
+                  record["date"] ?? "Unknown",
+                  fetchDoctorName(record["doctorId"] ?? ""),
+                ))
+                    .toList(),
+              ),
+              const SizedBox(height: 20),
+              // Treatment Section
+              _sectionCard(
+                title: "Treatments",
+                onSeeAll: () {},
+                children: healthRecords
+                    .where((record) => record.containsKey("treatment"))
+                    .map((record) => _infoTile(
+                  record["treatment"] ?? "Untitled",
+                  record["date"] ?? "Unknown",
+                  fetchDoctorName(record["doctorId"] ?? ""),
                 ))
                     .toList(),
               ),
@@ -196,15 +279,21 @@ class _PetHealthScreenState extends State<PetHealthScreen> {
   }
 
   // Health Record Info Tile
-  Widget _infoTile(String title, String subtitle, String doctor) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-        Text(subtitle),
-        Text(doctor, style: const TextStyle(color: Colors.grey)),
-        const Divider(),
-      ],
+  Widget _infoTile(String title, String subtitle, Future<String> doctorNameFuture) {
+    return FutureBuilder<String>(
+      future: doctorNameFuture,
+      builder: (context, snapshot) {
+        String doctorName = snapshot.data ?? "Unknown Doctor";
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+            Text(subtitle),
+            Text(doctorName, style: const TextStyle(color: Colors.grey)),
+            const Divider(),
+          ],
+        );
+      },
     );
   }
 }
