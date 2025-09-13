@@ -96,7 +96,7 @@ class MyApp extends StatelessWidget {
           description: "High-quality dry food made with natural ingredients.",
         ),
         '/bloglist': (context) => const BlogListScreen(),
-        '/blogdetail': (context) => const BlogDetailScreen(title: "", image: "", description:"hi" ),
+        '/blogdetail': (context) => const BlogDetailScreen(),
 
         // Vet Dashboard Screens URLs
         '/vetdashboard': (context) => const VetDashboardScreen(),

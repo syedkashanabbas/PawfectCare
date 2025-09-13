@@ -192,7 +192,6 @@ class _ShelterBlogListScreenState extends State<ShelterBlogListScreen> {
                   const PopupMenuItem(
                     value: "delete",
                     child: Text("Delete", style: TextStyle(color: Colors.red)),
-                    child: Text("Delete", style: TextStyle(color: Colors.red)),
                   ),
                 ],
               ),
