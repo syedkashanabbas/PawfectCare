@@ -30,10 +30,13 @@ import 'package:pawfectcare/Shelter/Volunteer_form.dart';
 import 'package:pawfectcare/Shelter/Volunteer_list.dart';
 import 'package:pawfectcare/Store/Add_product.dart';
 import 'package:pawfectcare/Store/CartScreen.dart';
+import 'package:pawfectcare/Store/Edit_product.dart';
+import 'package:pawfectcare/Store/OrdersListScreen.dart';
 import 'package:pawfectcare/Store/Store_product_detail.dart';
 import 'package:pawfectcare/Store/Store_product_list.dart';
 import 'package:pawfectcare/Store/Store_home.dart';
 import 'package:pawfectcare/Store/Store_wishlist.dart';
+import 'package:pawfectcare/Store/ThankYouScreen.dart';
 import 'package:pawfectcare/Vet/AddDiagnosisScreen.dart';
 import 'package:pawfectcare/Vet/AppointmentCalendarScreen.dart';
 import 'package:pawfectcare/Vet/AssignedPetsScreen.dart';
@@ -136,6 +139,11 @@ class MyApp extends StatelessWidget {
         '/cart': (context) => const CartScreen(),
         '/storewishlist': (context) => const  WishlistScreen(),
         '/addproduct': (context) => const  ShelterUploadProductScreen(),
+        '/thankyou': (context) => const  ThankYouScreen(),
+        '/orderslist': (context) => const  OrdersListScreen(),
+        '/editproduct': (context) => const  AdminProductScreen(),
+
+
 
 
 

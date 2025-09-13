@@ -126,7 +126,45 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
               ),
             ),
             child: const Text("Add To Cart", style: TextStyle(color: Colors.white, fontSize: 16)),
-          )
+          ),
+          const SizedBox(height: 10),
+          ElevatedButton.icon(
+            onPressed: () async {
+              final userId = FirebaseAuth.instance.currentUser?.uid;
+              if (userId == null) {
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('User not logged in')));
+                return;
+              }
+
+              try {
+                await FirebaseFirestore.instance
+                    .collection('wishlists')
+                    .doc(userId)
+                    .collection('items')
+                    .doc(widget.productId)
+                    .set({
+                  'productId': widget.productId,
+                  'name': productData!['name'],
+                  'price': productData!['price'],
+                  'image': productData!['image'],
+                  'timestamp': FieldValue.serverTimestamp(),
+                });
+
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Added to wishlist')));
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+              }
+            },
+            icon: Icon(Icons.favorite_border),
+            label: Text("Add To Wishlist"),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.pinkAccent,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+          ),
+
         ],
       ),
     );

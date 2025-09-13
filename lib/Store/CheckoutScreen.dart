@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:pawfectcare/Store/ThankYouScreen.dart';
 
 class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({super.key});
@@ -85,12 +86,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         doc.reference.delete();
       }
     });
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => const ThankYouScreen()),
+    );
 
 
     ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Order placed successfully!")));
-
-    Navigator.pop(context);
   }
 
   @override
