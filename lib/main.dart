@@ -101,7 +101,10 @@ class MyApp extends StatelessWidget {
         '/appointmentcalendar': (context) => const AppointmentCalendarScreen(),
         '/assignedpets': (context) => const AssignedPetsScreen(),
         '/medicalrecord': (context) => const MedicalRecordScreen(),
-        '/adddiagnosis': (context) => const AddDiagnosisScreen(),
+        '/adddiagnosis': (context) => AddDiagnosisScreen(
+          petId: ModalRoute.of(context)?.settings.arguments as String,  // Pass petId here
+        ),
+
         '/uploadmedicalfiles': (context) => const UploadMedicalFilesScreen(),
 
         // Shelter Dashboard Screens URLs

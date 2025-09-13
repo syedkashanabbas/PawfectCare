@@ -57,7 +57,7 @@ class PetOwnerDashboard extends StatelessWidget {
             const SizedBox(height: 16),
             _healthReminderSection(),
             const SizedBox(height: 16),
-            _appointmentsSection(),
+            _appointmentsSection(context),
             const SizedBox(height: 16),
             _petFoodSection(),
             const SizedBox(height: 16),
@@ -200,9 +200,14 @@ class PetOwnerDashboard extends StatelessWidget {
   Widget _healthReminderSection() =>
       _infoCard(Icons.vaccines, 'Health Reminders', 'Vaccines, Deworming');
 
-  Widget _appointmentsSection() =>
-      _infoCard(Icons.calendar_today, 'Appointments', 'Upcoming & Past');
-
+  Widget _appointmentsSection(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.pushNamed(context, "/appointment");
+      },
+      child: _infoCard(Icons.calendar_today, 'Appointments', 'Upcoming & Past'),
+    );
+  }
   Widget _infoCard(IconData icon, String title, String subtitle) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 6),
@@ -228,6 +233,8 @@ class PetOwnerDashboard extends StatelessWidget {
   }
 
   Widget _petFoodSection() {
+    final dbRef = FirebaseDatabase.instance.ref("products");
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -238,18 +245,38 @@ class PetOwnerDashboard extends StatelessWidget {
         const SizedBox(height: 8),
         SizedBox(
           height: 160,
-          child: ListView(
-            scrollDirection: Axis.horizontal,
-            children: [
-              _productCard('Josera Active Dog', 'https://i.imgur.com/x1.png'),
-              _productCard('Happy Dog Food', 'https://i.imgur.com/x2.png'),
-            ],
+          child: StreamBuilder(
+            stream: dbRef.orderByChild("category").equalTo("food").onValue,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (!snapshot.hasData || snapshot.data!.snapshot.value == null) {
+                return const Center(child: Text("No food products available"));
+              }
+
+              final productsMap = Map<dynamic, dynamic>.from(
+                snapshot.data!.snapshot.value as Map,
+              );
+
+              final products = productsMap.entries.toList();
+
+              return ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: products.length,
+                itemBuilder: (context, index) {
+                  final product = Map<String, dynamic>.from(products[index].value);
+                  final title = product["name"] ?? "Unnamed";
+                  final imageUrl = product["image"] ?? "";
+                  return _productCard(title, imageUrl);
+                },
+              );
+            },
           ),
         ),
       ],
     );
   }
-
   Widget _productCard(String title, String imageUrl) {
     return Container(
       width: 140,

@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 class AddDiagnosisScreen extends StatefulWidget {
-  const AddDiagnosisScreen({super.key});
+  final String petId; // This should be passed from the previous screen
+
+  const AddDiagnosisScreen({super.key, required this.petId});
 
   @override
   State<AddDiagnosisScreen> createState() => _AddDiagnosisScreenState();
@@ -12,7 +16,16 @@ class _AddDiagnosisScreenState extends State<AddDiagnosisScreen> {
   final TextEditingController _diagnosisController = TextEditingController();
   final TextEditingController _treatmentController = TextEditingController();
   final TextEditingController _prescriptionController = TextEditingController();
+  final TextEditingController _allergyController = TextEditingController();
+  final TextEditingController _vaccinationController = TextEditingController();
   DateTime? _nextVisitDate;
+
+  @override
+  void initState() {
+    super.initState();
+    // Make sure the selected pet ID is passed correctly
+    print("Pet ID for this screen: ${widget.petId}"); // Debugging line
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,6 +64,20 @@ class _AddDiagnosisScreenState extends State<AddDiagnosisScreen> {
               TextFormField(
                 controller: _prescriptionController,
                 decoration: _inputDecoration("e.g., Antibiotic 5mg for 3 days"),
+              ),
+              const SizedBox(height: 16),
+
+              _sectionLabel("Allergies"),
+              TextFormField(
+                controller: _allergyController,
+                decoration: _inputDecoration("e.g., Skin Allergies"),
+              ),
+              const SizedBox(height: 16),
+
+              _sectionLabel("Suggested Vaccinations"),
+              TextFormField(
+                controller: _vaccinationController,
+                decoration: _inputDecoration("e.g., Rabies, Annual"),
               ),
               const SizedBox(height: 16),
 
@@ -101,10 +128,13 @@ class _AddDiagnosisScreenState extends State<AddDiagnosisScreen> {
                 ),
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
-                    // Submit logic here later
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Diagnosis added successfully (dummy).")),
-                    );
+                    // Add a debugging print statement here
+                    print("Form is valid! Submitting...");
+
+                    // Submit logic to Firebase
+                    _submitDiagnosis();
+                  } else {
+                    print("Form is invalid.");
                   }
                 },
                 child: const Text("Save Diagnosis", style: TextStyle(fontSize: 16)),
@@ -138,5 +168,42 @@ class _AddDiagnosisScreenState extends State<AddDiagnosisScreen> {
         borderSide: const BorderSide(color: Colors.transparent),
       ),
     );
+  }
+
+  // Submit the diagnosis, allergies, vaccinations to Firebase
+  Future<void> _submitDiagnosis() async {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId == null || widget.petId.isEmpty) return;
+
+    final diagnosis = {
+      'diagnosis': _diagnosisController.text,
+      'treatment': _treatmentController.text,
+      'prescription': _prescriptionController.text,
+      'allergy': _allergyController.text,
+      'vaccination': _vaccinationController.text,
+      'nextVisitDate': _nextVisitDate?.toIso8601String(),
+      'doctorId': userId,
+      'date': DateTime.now().toIso8601String(),
+    };
+
+    try {
+      // Insert the diagnosis into the Firebase healthRecords table
+      final ref = FirebaseDatabase.instance.ref('healthRecords/${widget.petId}');
+      await ref.push().set(diagnosis);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Diagnosis added successfully")),
+      );
+      // Optionally reset the form or navigate back
+      _formKey.currentState?.reset();
+      setState(() {
+        _nextVisitDate = null;  // Reset the date picker
+      });
+    } catch (error) {
+      print("Error saving diagnosis: $error");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Failed to add diagnosis")),
+      );
+    }
   }
 }
