@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:pawfectcare/auth_service.dart';
-import 'package:pawfectcare/auth_service.dart';
 
 class StoreDrawer extends StatelessWidget {
   final String role;
@@ -31,6 +30,9 @@ class StoreDrawer extends StatelessWidget {
               ],
             ),
           ),
+
+          // ✅ Dashboard (role-based navigation)
+          _buildItem(context, Icons.dashboard, 'Dashboard', '/dashboard'),
 
           // Common screens (sab roles ke liye)
           _buildItem(context, Icons.list, 'Product List', '/storelist'),
@@ -65,18 +67,35 @@ class StoreDrawer extends StatelessWidget {
   }
 
   Widget _buildItem(
-      BuildContext context,
-      IconData icon,
-      String label,
-      String route, {
-        VoidCallback? onTap,
-      }) {
+    BuildContext context,
+    IconData icon,
+    String label,
+    String route, {
+    VoidCallback? onTap,
+  }) {
     return ListTile(
       leading: Icon(icon, color: const Color(0xFF4CAF50)),
       title: Text(label, style: const TextStyle(fontSize: 16)),
       onTap: onTap ??
-              () {
-            Navigator.of(context).pushNamed(route);
+          () {
+            if (route == "/dashboard") {
+              // Role-based navigation
+              if (context.mounted) {
+                if (role == "Super Admin") {
+                  Navigator.pushReplacementNamed(
+                      context, "/shelterdashboard");
+                } else if (role == "Veterinarian") {
+                  Navigator.pushReplacementNamed(context, "/vetdashboard");
+                } else if (role == "Pet Owner") {
+                  Navigator.pushReplacementNamed(
+                      context, "/petownerdashboard");
+                } else {
+                  Navigator.pushReplacementNamed(context, "/login");
+                }
+              }
+            } else {
+              Navigator.of(context).pushNamed(route);
+            }
           },
     );
   }
