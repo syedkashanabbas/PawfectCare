@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:convert';
 import 'dart:typed_data';
-import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
+import 'package:pawfectcare/Store/Store_Drawer.dart';
 
 class AdminProductScreen extends StatefulWidget {
   const AdminProductScreen({super.key});
@@ -21,24 +23,29 @@ class _AdminProductScreenState extends State<AdminProductScreen> {
   @override
   void initState() {
     super.initState();
+    _fetchUserRole();
+    _listenProducts();
+  }
 
-    // Example: current user role fetch
-    // TODO: replace USER_ID with actual auth uid
-    FirebaseDatabase.instance.ref().child("users/USER_ID/role").get().then((snap) {
-      if (snap.exists) {
-        setState(() {
-          _role = snap.value.toString();
-          _loading = false;
-        });
-      } else {
-        setState(() {
-          _role = null;
-          _loading = false;
-        });
-      }
+  Future<void> _fetchUserRole() async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) {
+      setState(() {
+        _role = "unknown";
+        _loading = false;
+      });
+      return;
+    }
+
+    final doc =
+    await FirebaseFirestore.instance.collection("users").doc(uid).get();
+    setState(() {
+      _role = doc.data()?["role"] ?? "unknown";
+      _loading = false;
     });
+  }
 
-    // Products listener
+  void _listenProducts() {
     FirebaseDatabase.instance.ref().child("products").onValue.listen((event) {
       if (event.snapshot.value != null) {
         final data = Map<String, dynamic>.from(event.snapshot.value as Map);
@@ -161,11 +168,11 @@ class _AdminProductScreenState extends State<AdminProductScreen> {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    if (_role != "shelter") {
+    if (_role != "Super Admin") {
       return const Scaffold(
         body: Center(
           child: Text(
-            "You are not admin",
+            "You are not authorized",
             style: TextStyle(fontSize: 18, color: Colors.red),
           ),
         ),
@@ -173,7 +180,12 @@ class _AdminProductScreenState extends State<AdminProductScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Admin: Manage Products")),
+      appBar: AppBar(
+        title: const Text("Admin: Manage Products"),
+        backgroundColor: Colors.green,
+        foregroundColor: Colors.white,
+      ),
+      drawer: StoreDrawer(role: _role ?? "unknown"),
       body: _products.isEmpty
           ? const Center(child: Text("No products found"))
           : GridView.builder(
