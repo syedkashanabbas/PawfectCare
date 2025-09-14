@@ -130,7 +130,8 @@ class _DonationListScreenState extends State<DonationListScreen> {
       backgroundColor: const Color(0xFFEFFAF0),
       appBar: AppBar(
         backgroundColor: const Color(0xFF4CAF50),
-        title: const Text('Donations'),
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: const Text('Donations', style: TextStyle(color: Colors.white),),
       ),
       drawer: const ShelterDrawer(),
       floatingActionButton: FloatingActionButton(

@@ -160,7 +160,7 @@ class _DonationFormScreenState extends State<DonationFormScreen> {
                             borderRadius: BorderRadius.circular(10)),
                       ),
                       child: const Text("Donate Now",
-                          style: TextStyle(fontSize: 16)),
+                          style: TextStyle(fontSize: 16, color: Colors.white)),
                     )
             ],
           ),

@@ -116,7 +116,7 @@ class AdoptionRequestsScreen extends StatelessWidget {
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF4CAF50),
                               ),
-                              child: const Text("Approve"),
+                              child: const Text("Approve", style: TextStyle(color: Colors.white),),
                             ),
                           ],
                         ),

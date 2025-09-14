@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pawfectcare/auth_service.dart';
 
 class ShelterDrawer extends StatelessWidget {
   const ShelterDrawer({super.key});
@@ -30,19 +31,28 @@ class ShelterDrawer extends StatelessWidget {
           _buildItem(context, Icons.add_box, 'Add Adoption Pets', '/add_editlisting'),
           _buildItem(context, Icons.article, 'Adoption Pet List', '/admin_petlisting'),
           _buildItem(context, Icons.assignment_ind, 'Adoption Requests', '/adoption'),
-          _buildItem(context, Icons.emoji_emotions, ' Add Success Stories', '/successstory'),
+          _buildItem(context, Icons.emoji_emotions, 'Add Success Stories', '/successstory'),
+          _buildItem(context, Icons.article, 'Success Stories', '/liststories'),
           // _buildItem(context, Icons.edit_note, 'Add Story', '/addstory'),
           _buildItem(context, Icons.volunteer_activism, 'Volunteer Form', '/volunteer'),
+          _buildItem(context, Icons.volunteer_activism, 'Volunteers', '/volunteerlist'),
           _buildItem(context, Icons.attach_money, 'Donation Form', '/donation'),
-          _buildItem(context, Icons.volunteer_activism, 'Volunteers List', '/volunteerlist'),
-          _buildItem(context, Icons.attach_money, 'Donations List', '/donationlist'),
+          _buildItem(context, Icons.attach_money, 'Donations', '/donationlist'),
           _buildItem(context, Icons.article, 'Add Blog', '/add_editblog'),
           _buildItem(context, Icons.article, 'Blogs', '/bloglistshelter'),
-          _buildItem(context, Icons.article, 'Lists Stories', '/liststories'),
           _buildItem(context, Icons.notification_add_outlined, 'Notifications', '/admin_notifications'),
 
           const Divider(),
-          _buildItem(context, Icons.logout, 'Logout', '/login'),
+          ListTile(
+            leading: const Icon(Icons.logout),
+            title: const Text('Logout'),
+            onTap: () async {
+              await AuthService().logoutUser();
+              if (context.mounted) {
+                Navigator.pushNamedAndRemoveUntil(context, "/login", (route) => false);
+              }
+            },
+          ),
         ],
       ),
     );

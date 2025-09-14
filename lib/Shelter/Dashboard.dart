@@ -13,6 +13,7 @@ class ShelterDashboardScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: greenColor,
+        iconTheme: const IconThemeData(color: Colors.white),
         title: const Text("Shelter Dashboard", style: TextStyle(color: Colors.white)),
       ),
       drawer: const ShelterDrawer(),
@@ -42,28 +43,57 @@ class ShelterDashboardScreen extends StatelessWidget {
               spacing: 16,
               runSpacing: 16,
               children: [
-                _buildActionButton(Icons.add_box, "Add Pet", greenColor, () {}),
-                _buildActionButton(Icons.assignment, "Requests", Colors.blue, () {}),
-                _buildActionButton(Icons.star, "Stories", Colors.orange, () {}),
-                _buildActionButton(Icons.volunteer_activism, "Volunteers", Colors.red, () {}),
+                _buildActionButton(
+                  Icons.add_box,
+                  "Add Pet",
+                  greenColor,
+                      () {
+                    Navigator.pushNamed(context, "/add_editlisting");
+                  },
+                ),
+                _buildActionButton(
+                  Icons.assignment,
+                  "Requests",
+                  Colors.blue,
+                      () {
+                    Navigator.pushNamed(context, "/adoption");
+                  },
+                ),
+                _buildActionButton(
+                  Icons.star,
+                  "Stories",
+                  Colors.orange,
+                      () {
+                    Navigator.pushNamed(context, "/liststories");
+                  },
+                ),
+                _buildActionButton(
+                  Icons.volunteer_activism,
+                  "Volunteers",
+                  Colors.red,
+                      () {
+                    Navigator.pushNamed(context, "/volunteerlist");
+                  },
+                ),
+
               ],
             )
           ],
         ),
       ),
 
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 0,
-        selectedItemColor: greenColor,
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: "Dashboard"),
-          BottomNavigationBarItem(icon: Icon(Icons.pets), label: "Listings"),
-          BottomNavigationBarItem(icon: Icon(Icons.assignment), label: "Requests"),
-          BottomNavigationBarItem(icon: Icon(Icons.star), label: "Stories"),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
-        ],
-      ),
+      // bottomNavigationBar: BottomNavigationBar(
+      //   currentIndex: 0,
+      //   selectedItemColor: greenColor,
+      //   unselectedItemColor: Colors.grey,
+      //   items: const [
+      //     BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: "Dashboard"),
+      //     BottomNavigationBarItem(icon: Icon(Icons.pets), label: "Listings"),
+      //     BottomNavigationBarItem(icon: Icon(Icons.assignment), label: "Requests"),
+      //     BottomNavigationBarItem(icon: Icon(Icons.star), label: "Stories"),
+      //     BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
+      //   ],
+      // ),
     );
   }
 

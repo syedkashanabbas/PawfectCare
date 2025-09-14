@@ -73,7 +73,7 @@ class _VolunteerListScreenState extends State<VolunteerListScreen> {
               });
               Navigator.pop(context);
             },
-            child: const Text('Save'),
+            child: const Text('Save', style: TextStyle(color: Colors.white),),
           ),
         ],
       ),
@@ -87,7 +87,8 @@ class _VolunteerListScreenState extends State<VolunteerListScreen> {
       backgroundColor: const Color(0xFFEFFAF0),
       appBar: AppBar(
         backgroundColor: const Color(0xFF4CAF50),
-        title: const Text('Volunteer Submissions'),
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: const Text('Volunteer', style: TextStyle(color: Colors.white),),
       ),
       drawer: const ShelterDrawer(),
       body: _volunteers.isEmpty

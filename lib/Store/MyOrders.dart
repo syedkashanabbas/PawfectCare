@@ -49,7 +49,8 @@ class MyOrdersScreen extends StatelessWidget {
 
             return Scaffold(
               appBar: AppBar(
-                title: const Text("My Orders"),
+                title: const Text("My Orders", style: TextStyle(color: Colors.white),),
+                iconTheme: const IconThemeData(color: Colors.white),
                 backgroundColor: Colors.green,
               ),
               drawer: StoreDrawer(role: userRole),

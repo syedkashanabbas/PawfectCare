@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:pawfectcare/Shelter/ShelterDrawer.dart';
 
 class ShelterBlogListScreen extends StatefulWidget {
   const ShelterBlogListScreen({super.key});
@@ -148,8 +149,10 @@ class _ShelterBlogListScreenState extends State<ShelterBlogListScreen> {
       backgroundColor: const Color(0xFFEFFAF0),
       appBar: AppBar(
         backgroundColor: const Color(0xFF4CAF50),
-        title: const Text('Blogs'),
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: const Text('Blogs', style: TextStyle(color: Colors.white),),
       ),
+      drawer: const ShelterDrawer(),
       floatingActionButton: FloatingActionButton(
         backgroundColor: const Color(0xFF4CAF50),
         onPressed: () => _showBlogForm(),

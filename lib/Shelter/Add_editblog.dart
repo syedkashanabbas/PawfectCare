@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:pawfectcare/Shelter/ShelterDrawer.dart';
 
 class AddEditBlogScreen extends StatefulWidget {
   const AddEditBlogScreen({super.key});
@@ -105,6 +106,7 @@ class _AddEditBlogScreenState extends State<AddEditBlogScreen> {
         title: const Text('Add Blog', style: TextStyle(color: Colors.white)),
         iconTheme: const IconThemeData(color: Colors.white),
       ),
+      drawer: const ShelterDrawer(),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Form(

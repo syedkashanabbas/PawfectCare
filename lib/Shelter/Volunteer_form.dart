@@ -149,7 +149,7 @@ class _VolunteerFormScreenState extends State<VolunteerFormScreen> {
                             borderRadius: BorderRadius.circular(10)),
                       ),
                       child: const Text("Submit",
-                          style: TextStyle(fontSize: 16)),
+                          style: TextStyle(fontSize: 16, color: Colors.white)),
                     ),
             ],
           ),
