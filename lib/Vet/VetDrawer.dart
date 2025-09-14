@@ -42,6 +42,7 @@ class VetDrawer extends StatelessWidget {
             },
           ),
           _drawerItem(context, Icons.dashboard, 'Dashboard', '/vetdashboard'),
+          _drawerItem(context, Icons.shop_2_outlined, 'Shop', '/storelist'),
           _drawerItem(context, Icons.calendar_today, 'Appointments', '/appointmentcalendar'),
           _drawerItem(context, Icons.pets, 'Patients', '/vetPatients'),
           _drawerItem(context, Icons.article, 'Blogs', '/bloglist'),
