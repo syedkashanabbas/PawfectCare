@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pawfectcare/auth/forgotPassword.dart';
-import 'package:pawfectcare/auth_service.dart'; 
+import 'package:pawfectcare/auth_service.dart';
 
 class login extends StatefulWidget {
   const login({super.key});
@@ -146,25 +146,7 @@ Row(
 ),
 
                   const SizedBox(height: 24),
-                  const Text('or connect with'),
                   const SizedBox(height: 16),
-                  const SocialLoginButton(
-                    icon: Icons.g_mobiledata,
-                    label: 'Login With Google',
-                    color: Colors.teal,
-                  ),
-                  const SizedBox(height: 12),
-                  const SocialLoginButton(
-                    icon: Icons.facebook,
-                    label: 'Login With Facebook',
-                    color: Colors.teal,
-                  ),
-                  const SizedBox(height: 12),
-                  const SocialLoginButton(
-                    icon: Icons.apple,
-                    label: 'Login With Apple',
-                    color: Colors.teal,
-                  ),
                   const SizedBox(height: 40),
                   const Text(
                     '© All Rights Reserved to Pawfect Care - 2025',

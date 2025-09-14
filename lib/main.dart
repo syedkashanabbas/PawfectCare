@@ -57,7 +57,7 @@ import 'package:pawfectcare/auth/splash_screen.dart';
 import 'package:pawfectcare/auth/welcomeScreen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
-
+import 'package:pawfectcare/Store/MyOrders.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -158,6 +158,7 @@ class MyApp extends StatelessWidget {
         '/thankyou': (context) => const  ThankYouScreen(),
         '/orderslist': (context) => const  OrdersListScreen(),
         '/editproduct': (context) => const  AdminProductScreen(),
+        '/myorders': (context) => const  MyOrdersScreen(),
 
 
 

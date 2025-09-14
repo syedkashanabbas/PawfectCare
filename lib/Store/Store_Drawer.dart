@@ -38,7 +38,7 @@ class StoreDrawer extends StatelessWidget {
           _buildItem(context, Icons.list, 'Product List', '/storelist'),
           _buildItem(context, Icons.shopping_cart, 'Cart', '/cart'),
           _buildItem(context, Icons.favorite, 'Wishlist', '/storewishlist'),
-
+          _buildItem(context, Icons.shopping_bag_outlined, 'My Orders', '/myorders'),
           // Sirf Super Admin ko ye 3 show honge
           if (role == "Super Admin") ...[
             _buildItem(context, Icons.add_box, 'Add Product', '/addproduct'),
