@@ -18,6 +18,7 @@ import 'package:pawfectcare/Petowner/Productdetails.dart';
 import 'package:pawfectcare/Petowner/Add_edit.dart';
 import 'package:pawfectcare/Petowner/Dashboard.dart';
 import 'package:pawfectcare/Petowner/Pethealth.dart';
+import 'package:pawfectcare/Petowner/pet_vet_assignment.dart';
 import 'package:pawfectcare/Shelter/Add_edit_pet_listing.dart';
 import 'package:pawfectcare/Shelter/Add_editblog.dart';
 import 'package:pawfectcare/Shelter/Add_story.dart';
@@ -46,6 +47,7 @@ import 'package:pawfectcare/Vet/AppointmentCalendarScreen.dart';
 import 'package:pawfectcare/Vet/AssignedPetsScreen.dart';
 import 'package:pawfectcare/Vet/MedicalRecordScreen.dart';
 import 'package:pawfectcare/Vet/UploadMedicalFilesScreen.dart';
+import 'package:pawfectcare/Vet/VetAssignmentScreen.dart';
 import 'package:pawfectcare/Vet/VetDashboardScreen.dart';
 import 'package:pawfectcare/homepage.dart';
 import 'package:pawfectcare/auth/login.dart';
@@ -89,6 +91,7 @@ class MyApp extends StatelessWidget {
         '/add_edit': (context) => const AddEditPetProfileScreen(),
         '/pethealth': (context) => const PetHealthScreen(),
         '/appointment': (context) => const BookAppointmentScreen(),
+        '/assignPet': (context) => const AssignVetToPetScreen(),
         '/appointmenthistory': (context) => AppointmentHistoryScreen(),
         '/availablepets':(context)=>AvailablePetsScreen(),
         '/petstore': (context) =>  PetStoreScreen(),
@@ -106,6 +109,7 @@ class MyApp extends StatelessWidget {
         '/appointmentcalendar': (context) => const AppointmentCalendarScreen(),
         '/assignedpets': (context) => const AssignedPetsScreen(),
         '/medicalrecord': (context) => const MedicalRecordScreen(),
+        '/vetassignments': (context) => const VetAssignmentScreen(),
         '/adddiagnosis': (context) => AddDiagnosisScreen(
           petId: ModalRoute.of(context)?.settings.arguments as String,  // Pass petId here
         ),
