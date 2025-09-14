@@ -10,6 +10,7 @@ import 'package:pawfectcare/Common/Searchscreen.dart';
 import 'package:pawfectcare/Common/User_profile.dart';
 import 'package:pawfectcare/Petowner/Appointmentbooking.dart';
 import 'package:pawfectcare/Petowner/Appointmenthistory.dart';
+import 'package:pawfectcare/Petowner/AvailablePetsScreen.dart';
 import 'package:pawfectcare/Petowner/Blogdetail.dart';
 import 'package:pawfectcare/Petowner/Bloglist.dart';
 import 'package:pawfectcare/Petowner/Petstore.dart';
@@ -89,6 +90,7 @@ class MyApp extends StatelessWidget {
         '/pethealth': (context) => const PetHealthScreen(),
         '/appointment': (context) => const BookAppointmentScreen(),
         '/appointmenthistory': (context) => AppointmentHistoryScreen(),
+        '/availablepets':(context)=>AvailablePetsScreen(),
         '/petstore': (context) =>  PetStoreScreen(),
         '/productdetail': (context) => ProductDetailScreen(
           name: "Josera Adult Food",

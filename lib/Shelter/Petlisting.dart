@@ -21,7 +21,7 @@ class PetListingScreen extends StatelessWidget {
       floatingActionButton: FloatingActionButton(
         backgroundColor: const Color(0xFF4CAF50),
         onPressed: () {
-          Navigator.pushNamed(context, '/add_edit');
+          Navigator.pushNamed(context, '/add_editlisting');
         },
         child: const Icon(Icons.add),
       ),
