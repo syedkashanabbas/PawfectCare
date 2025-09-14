@@ -28,6 +28,7 @@ import 'package:pawfectcare/Shelter/AdminPetsListing.dart';
 import 'package:pawfectcare/Shelter/Dashboard.dart';
 import 'package:pawfectcare/Shelter/Donation_form.dart';
 import 'package:pawfectcare/Shelter/Donation_list.dart';
+import 'package:pawfectcare/Shelter/List_Stories.dart';
 import 'package:pawfectcare/Shelter/Petlisting.dart';
 import 'package:pawfectcare/Shelter/ShelterBlogListScreen.dart';
 import 'package:pawfectcare/Shelter/Success_story.dart';
@@ -130,6 +131,7 @@ class MyApp extends StatelessWidget {
         '/add_editblog': (context) => const AddEditBlogScreen(),
         '/admin_petlisting': (context) => const AdminPetsListing(),
         '/admin_notifications':(context)=> const AdminNotificationScreen(),
+        '/liststories': (context) => const ListStoriesScreen(),
 
         // Common Screens URLs
         '/homescreen': (context) => const HomeScreen(role: 'Pet Owner'),
