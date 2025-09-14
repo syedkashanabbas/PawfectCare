@@ -51,7 +51,6 @@ class PetOwnerDashboard extends StatelessWidget {
         ],
       ),
 
-
       drawer: const PetOwnerDrawer(),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -62,24 +61,13 @@ class PetOwnerDashboard extends StatelessWidget {
             const SizedBox(height: 16),
             _appointmentsSection(context),
             const SizedBox(height: 16),
-            _petFoodSection(),
+
             const SizedBox(height: 16),
             _blogTipsSection(context),
             const SizedBox(height: 16),
             _vetsSection(),
           ],
         ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        selectedItemColor: Colors.green[700],
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.pets), label: 'My Pets'),
-          BottomNavigationBarItem(icon: Icon(Icons.store), label: 'Shop'),
-          BottomNavigationBarItem(icon: Icon(Icons.feed), label: 'Feed'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
-        ],
       ),
     );
   }
@@ -137,7 +125,12 @@ class PetOwnerDashboard extends StatelessWidget {
     );
   }
 
-  Widget _petAvatar(BuildContext context, String petId, String name, String imageUrl) {
+  Widget _petAvatar(
+    BuildContext context,
+    String petId,
+    String name,
+    String imageUrl,
+  ) {
     final dbRef = FirebaseDatabase.instance.ref("pets");
 
     return Column(
@@ -146,7 +139,9 @@ class PetOwnerDashboard extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 28,
-              backgroundImage: imageUrl.isNotEmpty ? NetworkImage(imageUrl) : null,
+              backgroundImage: imageUrl.isNotEmpty
+                  ? NetworkImage(imageUrl)
+                  : null,
               child: imageUrl.isEmpty
                   ? const Icon(Icons.pets, size: 28, color: Colors.grey)
                   : null,
@@ -168,7 +163,7 @@ class PetOwnerDashboard extends StatelessWidget {
                 ],
                 icon: const Icon(Icons.more_vert, size: 18),
               ),
-            )
+            ),
           ],
         ),
         const SizedBox(height: 4),
@@ -226,77 +221,6 @@ class PetOwnerDashboard extends StatelessWidget {
               Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
               Text(subtitle, style: const TextStyle(color: Colors.grey)),
             ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _petFoodSection() {
-    final dbRef = FirebaseDatabase.instance.ref("products");
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Pet Food',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 8),
-        SizedBox(
-          height: 160,
-          child: StreamBuilder(
-            stream: dbRef.orderByChild("category").equalTo("food").onValue,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              if (!snapshot.hasData || snapshot.data!.snapshot.value == null) {
-                return const Center(child: Text("No food products available"));
-              }
-
-              final productsMap = Map<dynamic, dynamic>.from(
-                snapshot.data!.snapshot.value as Map,
-              );
-
-              final products = productsMap.entries.toList();
-
-              return ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: products.length,
-                itemBuilder: (context, index) {
-                  final product = Map<String, dynamic>.from(products[index].value);
-                  final title = product["name"] ?? "Unnamed";
-                  final imageUrl = product["image"] ?? "";
-                  return _productCard(title, imageUrl);
-                },
-              );
-            },
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _productCard(String title, String imageUrl) {
-    return Container(
-      width: 140,
-      margin: const EdgeInsets.symmetric(horizontal: 8),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      padding: const EdgeInsets.all(12),
-      child: Column(
-        children: [
-          Image.network(imageUrl, height: 70, fit: BoxFit.cover),
-          const SizedBox(height: 8),
-          Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-          const SizedBox(height: 6),
-          ElevatedButton(
-            onPressed: () {},
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.green[600]),
-            child: const Text('Buy'),
           ),
         ],
       ),
@@ -362,8 +286,9 @@ class PetOwnerDashboard extends StatelessWidget {
       child: Row(
         children: [
           CircleAvatar(
-            backgroundImage:
-            imageUrl.isNotEmpty ? NetworkImage(imageUrl) : null,
+            backgroundImage: imageUrl.isNotEmpty
+                ? NetworkImage(imageUrl)
+                : null,
             radius: 30,
             child: imageUrl.isEmpty
                 ? const Icon(Icons.person, color: Colors.white)
@@ -371,12 +296,18 @@ class PetOwnerDashboard extends StatelessWidget {
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
+            child: Text(
+              name,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
           ),
           ElevatedButton(
             onPressed: () {},
             style: ElevatedButton.styleFrom(backgroundColor: Colors.green[600]),
-            child: const Text('Book'),
+            child: const Text(
+              'Available',
+              style: TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),

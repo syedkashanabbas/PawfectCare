@@ -91,7 +91,7 @@ class MyApp extends StatelessWidget {
         '/petownerdashboard': (context) => const PetOwnerDashboard(),
         '/add_edit': (context) => const AddEditPetProfileScreen(),
         '/pethealth': (context) => const PetHealthScreen(),
-        '/appointment': (context) => const BookAppointmentScreen(),
+        '/appointment': (context) => BookAppointmentScreen(),
         '/assignPet': (context) => const AssignVetToPetScreen(),
         '/appointmenthistory': (context) => AppointmentHistoryScreen(),
         '/availablepets':(context)=>AvailablePetsScreen(),

@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -60,10 +59,7 @@ class _AssignVetToPetScreenState extends State<AssignVetToPetScreen> {
       if (snapshot.value != null) {
         final petsMap = Map<dynamic, dynamic>.from(snapshot.value as Map);
         _pets = petsMap.entries.map((entry) {
-          return {
-            'id': entry.key,
-            'name': entry.value['name'],
-          };
+          return {'id': entry.key, 'name': entry.value['name']};
         }).toList();
       } else {
         _pets = [];
@@ -97,15 +93,15 @@ class _AssignVetToPetScreenState extends State<AssignVetToPetScreen> {
         'createdAt': DateTime.now().toIso8601String(),
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Vet assigned to pet")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Vet assigned to pet")));
       Navigator.pop(context);
     } catch (e) {
       print("Error assigning vet: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Failed to assign vet")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Failed to assign vet")));
     }
   }
 
@@ -114,7 +110,11 @@ class _AssignVetToPetScreenState extends State<AssignVetToPetScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xFF4CAF50),
-        title: const Text("Assign Vet to Pet"),
+        title: const Text(
+          "Assign Vet to Pet",
+          style: TextStyle(color: Colors.white),
+        ),
+
         elevation: 0,
       ),
       body: SingleChildScrollView(
@@ -240,7 +240,11 @@ class _AssignVetToPetScreenState extends State<AssignVetToPetScreen> {
       ),
       child: const Text(
         "Assign Vet to Pet",
-        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        style: TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
       ),
     );
   }

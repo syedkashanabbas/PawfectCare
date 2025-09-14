@@ -20,11 +20,18 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
   String? selectedPetName;
 
   final List<String> timeSlots = [
-    '9:30', '10:30', '11:30', '3:30', '4:30', '5:30',
+    '9:30',
+    '10:30',
+    '11:30',
+    '3:30',
+    '4:30',
+    '5:30',
   ];
 
   final DatabaseReference dbRef = FirebaseDatabase.instance.ref("appointments");
-  final DatabaseReference notifRef = FirebaseDatabase.instance.ref("notifications");
+  final DatabaseReference notifRef = FirebaseDatabase.instance.ref(
+    "notifications",
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +41,10 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
       appBar: AppBar(
         backgroundColor: greenColor,
         leading: const BackButton(color: Colors.white),
-        title: const Text("Book Appointment", style: TextStyle(color: Colors.white)),
+        title: const Text(
+          "Book Appointment",
+          style: TextStyle(color: Colors.white),
+        ),
       ),
       drawer: const PetOwnerDrawer(),
       body: SingleChildScrollView(
@@ -42,7 +52,10 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text("Choose a Doctor", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text(
+              "Choose a Doctor",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 10),
             StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
@@ -66,13 +79,17 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                     setState(() {
                       selectedVetId = val;
                       final vetDoc = vets.firstWhere((d) => d.id == val);
-                      selectedVetName = (vetDoc.data() as Map<String, dynamic>)["name"];
+                      selectedVetName =
+                          (vetDoc.data() as Map<String, dynamic>)["name"];
                     });
                   },
                   decoration: InputDecoration(
                     filled: true,
                     fillColor: Colors.grey.shade100,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
                   ),
                   hint: const Text("Select a veterinarian"),
                 );
@@ -80,7 +97,10 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
             ),
 
             const SizedBox(height: 20),
-            const Text("Choose a Pet", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text(
+              "Choose a Pet",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 10),
 
             // Fetch pets
@@ -95,16 +115,16 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                   return const CircularProgressIndicator();
                 }
 
-                if (!snapshot.hasData || snapshot.data!.snapshot.value == null) {
+                if (!snapshot.hasData ||
+                    snapshot.data!.snapshot.value == null) {
                   return const Center(child: Text("No pets found"));
                 }
 
-                final petsMap = Map<dynamic, dynamic>.from(snapshot.data!.snapshot.value as Map);
+                final petsMap = Map<dynamic, dynamic>.from(
+                  snapshot.data!.snapshot.value as Map,
+                );
                 final petList = petsMap.entries.map((entry) {
-                  return {
-                    'id': entry.key,
-                    'name': entry.value['name'],
-                  };
+                  return {'id': entry.key, 'name': entry.value['name']};
                 }).toList();
 
                 return DropdownButtonFormField<String>(
@@ -121,14 +141,19 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                   onChanged: (val) {
                     setState(() {
                       selectedPetId = val;
-                      final selectedPet = petList.firstWhere((p) => p['id'] == val);
+                      final selectedPet = petList.firstWhere(
+                        (p) => p['id'] == val,
+                      );
                       selectedPetName = selectedPet['name'];
                     });
                   },
                   decoration: InputDecoration(
                     filled: true,
                     fillColor: Colors.grey.shade100,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
                   ),
                   hint: const Text("Select a pet"),
                 );
@@ -136,7 +161,10 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
             ),
 
             const SizedBox(height: 20),
-            const Text("Choose a Date", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text(
+              "Choose a Date",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 10),
             CalendarDatePicker(
               initialDate: selectedDate,
@@ -146,7 +174,10 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
             ),
 
             const SizedBox(height: 20),
-            const Text("Pick a Time", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text(
+              "Pick a Time",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 10),
 
             Wrap(
@@ -159,7 +190,9 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                   selected: isSelected,
                   selectedColor: greenColor,
                   onSelected: (_) => setState(() => selectedTime = time),
-                  labelStyle: TextStyle(color: isSelected ? Colors.white : Colors.black),
+                  labelStyle: TextStyle(
+                    color: isSelected ? Colors.white : Colors.black,
+                  ),
                   backgroundColor: Colors.grey.shade200,
                 );
               }).toList(),
@@ -173,27 +206,34 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: greenColor,
                 minimumSize: const Size(double.infinity, 50),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
-            )
+            ),
           ],
         ),
       ),
-      bottomNavigationBar: _bottomNavBar(),
     );
   }
 
   Future<void> _bookAppointment() async {
     if (selectedVetId == null || selectedVetName == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Please select a doctor")));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Please select a doctor")));
       return;
     }
     if (selectedPetId == null || selectedPetName == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Please select a pet")));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Please select a pet")));
       return;
     }
     if (selectedTime == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Please select a time slot")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please select a time slot")),
+      );
       return;
     }
 
@@ -216,8 +256,10 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
     await newRef.set(appointmentData);
 
     // Notifications
-    final ownerMessage = "Your appointment with Dr. $selectedVetName is on ${selectedDate.toLocal().toString().split(' ')[0]} at $selectedTime.";
-    final vetMessage = "You have an appointment with $selectedPetName on ${selectedDate.toLocal().toString().split(' ')[0]} at $selectedTime.";
+    final ownerMessage =
+        "Your appointment with Dr. $selectedVetName is on ${selectedDate.toLocal().toString().split(' ')[0]} at $selectedTime.";
+    final vetMessage =
+        "You have an appointment with $selectedPetName on ${selectedDate.toLocal().toString().split(' ')[0]} at $selectedTime.";
 
     await notifRef.child(userId).push().set({
       "title": "Appointment Booked",
@@ -237,7 +279,9 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Appointment booked & notifications sent!")),
+        const SnackBar(
+          content: Text("Appointment booked & notifications sent!"),
+        ),
       );
       Navigator.pop(context);
     }
@@ -252,7 +296,10 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
         BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
         BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Discover'),
         BottomNavigationBarItem(icon: Icon(Icons.explore), label: 'Explore'),
-        BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: 'Manage'),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.calendar_today),
+          label: 'Manage',
+        ),
         BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
       ],
     );

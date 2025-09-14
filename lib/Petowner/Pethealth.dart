@@ -83,7 +83,10 @@ class _PetHealthScreenState extends State<PetHealthScreen> {
 
   // Fetch the doctor's name from Firestore using doctorId
   Future<String> fetchDoctorName(String doctorId) async {
-    final docSnapshot = await FirebaseFirestore.instance.collection("users").doc(doctorId).get();
+    final docSnapshot = await FirebaseFirestore.instance
+        .collection("users")
+        .doc(doctorId)
+        .get();
     if (docSnapshot.exists) {
       return docSnapshot.data()?["name"] ?? "Unknown Doctor";
     }
@@ -97,7 +100,8 @@ class _PetHealthScreenState extends State<PetHealthScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: greenColor,
-        title: const Text('Pet Health'),
+        title: const Text('Pet Health', style: TextStyle(color: Colors.white)),
+
         leading: const BackButton(color: Colors.white),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(40),
@@ -108,11 +112,20 @@ class _PetHealthScreenState extends State<PetHealthScreen> {
               children: const [
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
-                  child: Text("Wellness", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                  child: Text(
+                    "Wellness",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Text("Medical Records", style: TextStyle(color: Colors.white70)),
+                  child: Text(
+                    "Medical Records",
+                    style: TextStyle(color: Colors.white70),
+                  ),
                 ),
               ],
             ),
@@ -141,11 +154,13 @@ class _PetHealthScreenState extends State<PetHealthScreen> {
                 onSeeAll: () {},
                 children: healthRecords
                     .where((record) => record.containsKey("vaccination"))
-                    .map((record) => _infoTile(
-                  record["vaccination"] ?? "Untitled",
-                  record["date"] ?? "Unknown",
-                  fetchDoctorName(record["doctorId"] ?? ""),
-                ))
+                    .map(
+                      (record) => _infoTile(
+                        record["vaccination"] ?? "Untitled",
+                        record["date"] ?? "Unknown",
+                        fetchDoctorName(record["doctorId"] ?? ""),
+                      ),
+                    )
                     .toList(),
               ),
               const SizedBox(height: 20),
@@ -155,11 +170,13 @@ class _PetHealthScreenState extends State<PetHealthScreen> {
                 onSeeAll: () {},
                 children: healthRecords
                     .where((record) => record.containsKey("allergy"))
-                    .map((record) => _infoTile(
-                  record["allergy"] ?? "Untitled",
-                  record["date"] ?? "Unknown",
-                  fetchDoctorName(record["doctorId"] ?? ""),
-                ))
+                    .map(
+                      (record) => _infoTile(
+                        record["allergy"] ?? "Untitled",
+                        record["date"] ?? "Unknown",
+                        fetchDoctorName(record["doctorId"] ?? ""),
+                      ),
+                    )
                     .toList(),
               ),
               const SizedBox(height: 20),
@@ -169,11 +186,13 @@ class _PetHealthScreenState extends State<PetHealthScreen> {
                 onSeeAll: () {},
                 children: healthRecords
                     .where((record) => record.containsKey("diagnosis"))
-                    .map((record) => _infoTile(
-                  record["diagnosis"] ?? "Untitled",
-                  record["date"] ?? "Unknown",
-                  fetchDoctorName(record["doctorId"] ?? ""),
-                ))
+                    .map(
+                      (record) => _infoTile(
+                        record["diagnosis"] ?? "Untitled",
+                        record["date"] ?? "Unknown",
+                        fetchDoctorName(record["doctorId"] ?? ""),
+                      ),
+                    )
                     .toList(),
               ),
               const SizedBox(height: 20),
@@ -183,11 +202,13 @@ class _PetHealthScreenState extends State<PetHealthScreen> {
                 onSeeAll: () {},
                 children: healthRecords
                     .where((record) => record.containsKey("prescription"))
-                    .map((record) => _infoTile(
-                  record["prescription"] ?? "Untitled",
-                  record["date"] ?? "Unknown",
-                  fetchDoctorName(record["doctorId"] ?? ""),
-                ))
+                    .map(
+                      (record) => _infoTile(
+                        record["prescription"] ?? "Untitled",
+                        record["date"] ?? "Unknown",
+                        fetchDoctorName(record["doctorId"] ?? ""),
+                      ),
+                    )
                     .toList(),
               ),
               const SizedBox(height: 20),
@@ -197,15 +218,19 @@ class _PetHealthScreenState extends State<PetHealthScreen> {
                 onSeeAll: () {},
                 children: healthRecords
                     .where((record) => record.containsKey("treatment"))
-                    .map((record) => _infoTile(
-                  record["treatment"] ?? "Untitled",
-                  record["date"] ?? "Unknown",
-                  fetchDoctorName(record["doctorId"] ?? ""),
-                ))
+                    .map(
+                      (record) => _infoTile(
+                        record["treatment"] ?? "Untitled",
+                        record["date"] ?? "Unknown",
+                        fetchDoctorName(record["doctorId"] ?? ""),
+                      ),
+                    )
                     .toList(),
               ),
             ] else if (selectedPetId != null) ...[
-              const Center(child: Text("No health records found for this pet."))
+              const Center(
+                child: Text("No health records found for this pet."),
+              ),
             ],
           ],
         ),
@@ -231,7 +256,9 @@ class _PetHealthScreenState extends State<PetHealthScreen> {
           setState(() {
             selectedPetId = newValue;
             if (newValue != null) {
-              fetchHealthRecords(petIdMap[newValue]!); // Fetch health records when a pet is selected
+              fetchHealthRecords(
+                petIdMap[newValue]!,
+              ); // Fetch health records when a pet is selected
             }
           });
         },
@@ -263,10 +290,19 @@ class _PetHealthScreenState extends State<PetHealthScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 GestureDetector(
                   onTap: onSeeAll,
-                  child: const Text("See all", style: TextStyle(color: Colors.blue)),
+                  child: const Text(
+                    "See all",
+                    style: TextStyle(color: Colors.blue),
+                  ),
                 ),
               ],
             ),
@@ -279,7 +315,11 @@ class _PetHealthScreenState extends State<PetHealthScreen> {
   }
 
   // Health Record Info Tile
-  Widget _infoTile(String title, String subtitle, Future<String> doctorNameFuture) {
+  Widget _infoTile(
+    String title,
+    String subtitle,
+    Future<String> doctorNameFuture,
+  ) {
     return FutureBuilder<String>(
       future: doctorNameFuture,
       builder: (context, snapshot) {

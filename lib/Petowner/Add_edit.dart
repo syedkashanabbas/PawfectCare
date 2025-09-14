@@ -113,7 +113,11 @@ class _AddEditPetProfileScreenState extends State<AddEditPetProfileScreen> {
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
         backgroundColor: Colors.green[600],
-        title: Text(widget.isEditing ? 'Edit Pet' : 'Add New Pet'),
+        title: Text(
+          widget.isEditing ? 'Edit Pet' : 'Add New Pet',
+          style: const TextStyle(color: Colors.white),
+        ),
+
         elevation: 0,
       ),
       drawer: const PetOwnerDrawer(),

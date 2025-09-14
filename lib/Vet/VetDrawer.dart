@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:pawfectcare/auth_service.dart';
 
-
 class VetDrawer extends StatelessWidget {
   const VetDrawer({super.key});
 
@@ -17,7 +16,10 @@ class VetDrawer extends StatelessWidget {
         padding: EdgeInsets.zero,
         children: [
           FutureBuilder<DocumentSnapshot>(
-            future: FirebaseFirestore.instance.collection("users").doc(userId).get(),
+            future: FirebaseFirestore.instance
+                .collection("users")
+                .doc(userId)
+                .get(),
             builder: (context, snapshot) {
               String name = "Vet";
               String email = "";
@@ -33,7 +35,9 @@ class VetDrawer extends StatelessWidget {
                 accountName: Text(name),
                 accountEmail: Text(email),
                 currentAccountPicture: CircleAvatar(
-                  backgroundImage: imageUrl.isNotEmpty ? NetworkImage(imageUrl) : null,
+                  backgroundImage: imageUrl.isNotEmpty
+                      ? NetworkImage(imageUrl)
+                      : null,
                   child: imageUrl.isEmpty
                       ? const Icon(Icons.person, color: Colors.white, size: 40)
                       : null,
@@ -43,11 +47,26 @@ class VetDrawer extends StatelessWidget {
           ),
           _drawerItem(context, Icons.dashboard, 'Dashboard', '/vetdashboard'),
           _drawerItem(context, Icons.shop_2_outlined, 'Shop', '/storelist'),
-          _drawerItem(context, Icons.calendar_today, 'Appointments', '/appointmentcalendar'),
-          _drawerItem(context, Icons.pets, 'Patients', '/vetPatients'),
+          _drawerItem(
+            context,
+            Icons.calendar_today,
+            'Appointments',
+            '/appointmentcalendar',
+          ),
+
           _drawerItem(context, Icons.article, 'Blogs', '/bloglist'),
-          _drawerItem(context, Icons.settings, 'Notifications', '/notification'),
-          _drawerItem(context, Icons.settings, 'Profile Settings', '/userprofile'),
+          _drawerItem(
+            context,
+            Icons.settings,
+            'Notifications',
+            '/notification',
+          ),
+          _drawerItem(
+            context,
+            Icons.settings,
+            'Profile Settings',
+            '/userprofile',
+          ),
           const Divider(),
           ListTile(
             leading: const Icon(Icons.logout),
@@ -55,7 +74,11 @@ class VetDrawer extends StatelessWidget {
             onTap: () async {
               await AuthService().logoutUser();
               if (context.mounted) {
-                Navigator.pushNamedAndRemoveUntil(context, "/login", (route) => false);
+                Navigator.pushNamedAndRemoveUntil(
+                  context,
+                  "/login",
+                  (route) => false,
+                );
               }
             },
           ),
@@ -64,7 +87,12 @@ class VetDrawer extends StatelessWidget {
     );
   }
 
-  Widget _drawerItem(BuildContext context, IconData icon, String title, String route) {
+  Widget _drawerItem(
+    BuildContext context,
+    IconData icon,
+    String title,
+    String route,
+  ) {
     return ListTile(
       leading: Icon(icon),
       title: Text(title),
