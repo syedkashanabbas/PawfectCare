@@ -25,6 +25,7 @@ class ShelterDrawer extends StatelessWidget {
             ),
           ),
           _buildItem(context, Icons.dashboard, 'Dashboard', '/shelterdashboard'),
+          _buildItem(context, Icons.dashboard, 'Shop', '/storelist'),
           _buildItem(context, Icons.pets, 'All Pet Listing', '/petlisting'),
           _buildItem(context, Icons.add_box, 'Add Adoption Pets', '/add_editlisting'),
           _buildItem(context, Icons.article, 'Adoption Pet List', '/admin_petlisting'),

@@ -1,9 +1,41 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:pawfectcare/Store/Store_Drawer.dart';
 
-class WishlistScreen extends StatelessWidget {
+class WishlistScreen extends StatefulWidget {
   const WishlistScreen({super.key});
+
+  @override
+  State<WishlistScreen> createState() => _WishlistScreenState();
+}
+
+class _WishlistScreenState extends State<WishlistScreen> {
+  String? _role;
+  bool _loadingRole = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserRole();
+  }
+
+  Future<void> _fetchUserRole() async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) {
+      setState(() {
+        _role = "unknown";
+        _loadingRole = false;
+      });
+      return;
+    }
+
+    final doc = await FirebaseFirestore.instance.collection("users").doc(uid).get();
+    setState(() {
+      _role = doc.data()?["role"] ?? "unknown";
+      _loadingRole = false;
+    });
+  }
 
   Future<void> _addToCart(BuildContext context, Map<String, dynamic> item, String productId) async {
     final userId = FirebaseAuth.instance.currentUser?.uid;
@@ -44,10 +76,13 @@ class WishlistScreen extends StatelessWidget {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     final userId = FirebaseAuth.instance.currentUser?.uid;
+
+    if (_loadingRole) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
 
     if (userId == null) {
       return Scaffold(
@@ -67,6 +102,7 @@ class WishlistScreen extends StatelessWidget {
         title: const Text("My Wishlist", style: TextStyle(color: Colors.white)),
         iconTheme: const IconThemeData(color: Colors.white),
       ),
+      drawer: StoreDrawer(role: _role ?? "unknown"),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('wishlists')

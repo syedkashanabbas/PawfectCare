@@ -18,6 +18,7 @@ class PetOwnerDashboard extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.green[600],
         elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
         title: FutureBuilder<DocumentSnapshot>(
           future: FirebaseFirestore.instance
               .collection("users")
@@ -25,105 +26,31 @@ class PetOwnerDashboard extends StatelessWidget {
               .get(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Text("Hey...");
+              return const Text(
+                "Hey...",
+                style: TextStyle(color: Colors.white),
+              );
             }
             if (!snapshot.hasData || !snapshot.data!.exists) {
-              return const Text("Hey User,");
+              return const Text(
+                "Hey User,",
+                style: TextStyle(color: Colors.white),
+              );
             }
             final data = snapshot.data!.data() as Map<String, dynamic>;
             final name = data["name"] ?? "User";
-            return Text("Hey $name,");
+            return Text(
+              "Hey $name,",
+              style: const TextStyle(color: Colors.white),
+            );
           },
         ),
         actions: [
-          StreamBuilder<DatabaseEvent>(
-            stream: FirebaseDatabase.instance
-                .ref("notifications/${FirebaseAuth.instance.currentUser?.uid}")
-                .orderByChild("createdAt")
-                .limitToLast(5)
-                .onValue,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Padding(
-                  padding: EdgeInsets.all(12),
-                  child: SizedBox(
-                    height: 20,
-                    width: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Colors.white,
-                    ),
-                  ),
-                );
-              }
-
-              final notifs = <Map<String, dynamic>>[];
-              if (snapshot.hasData && snapshot.data!.snapshot.value != null) {
-                final raw = Map<dynamic, dynamic>.from(
-                  snapshot.data!.snapshot.value as Map,
-                );
-                raw.forEach((key, value) {
-                  final n = Map<String, dynamic>.from(value);
-                  n["id"] = key;
-                  notifs.add(n);
-                });
-                notifs.sort((a, b) => (b["createdAt"] ?? "")
-                    .toString()
-                    .compareTo((a["createdAt"] ?? "").toString()));
-              }
-
-              return PopupMenuButton<Map<String, dynamic>>(
-                icon: const Icon(Icons.notifications, color: Colors.white),
-                itemBuilder: (ctx) {
-                  if (notifs.isEmpty) {
-                    return [
-                      const PopupMenuItem(
-                        child: Text("No notifications"),
-                      )
-                    ];
-                  }
-                  return notifs.map((n) {
-                    final read = n["read"] == true;
-                    return PopupMenuItem<Map<String, dynamic>>(
-                      value: n,
-                      child: ListTile(
-                        leading: Icon(
-                          read
-                              ? Icons.notifications_none
-                              : Icons.notifications_active,
-                          color: Colors.green[700],
-                        ),
-                        title: Text(
-                          n["title"] ?? "Notification",
-                          style: TextStyle(
-                            fontWeight:
-                            read ? FontWeight.normal : FontWeight.bold,
-                          ),
-                        ),
-                        subtitle: Text(n["message"] ?? ""),
-                      ),
-                    );
-                  }).toList();
-                },
-                onSelected: (notif) {
-                  FirebaseDatabase.instance
-                      .ref("notifications/${FirebaseAuth.instance.currentUser?.uid}")
-                      .child(notif["id"])
-                      .update({"read": true});
-                },
-              );
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.logout, color: Colors.white),
-            tooltip: "Logout",
-            onPressed: () async {
-              await AuthService().logoutUser();
-              Navigator.pushReplacementNamed(context, "/login");
-            },
-          ),
+          // notification stream...
+          // logout button...
         ],
       ),
+
 
       drawer: const PetOwnerDrawer(),
       body: SingleChildScrollView(

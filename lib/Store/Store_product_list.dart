@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:pawfectcare/Store/Store_Drawer.dart';
 
 class ProductListScreen extends StatefulWidget {
   const ProductListScreen({super.key});
@@ -17,6 +20,56 @@ class _ProductListScreenState extends State<ProductListScreen> {
   String _sortBy = 'None';
 
   final _searchController = TextEditingController();
+
+  String? _role;
+  bool _loadingRole = true;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // 🔥 Fetch user role
+    _fetchUserRole();
+
+    // 🔥 Listen products from Realtime DB
+    FirebaseDatabase.instance.ref().child("products").onValue.listen((event) {
+      if (event.snapshot.value != null) {
+        final productsMap = Map<String, dynamic>.from(event.snapshot.value as Map);
+        final productsList = productsMap.entries.map((e) {
+          final val = Map<String, dynamic>.from(e.value);
+          val['id'] = e.key;
+          return val;
+        }).toList();
+
+        setState(() {
+          _allProducts = productsList;
+        });
+        _filterAndSort();
+      }
+    });
+
+    _searchController.addListener(() {
+      _searchQuery = _searchController.text;
+      _filterAndSort();
+    });
+  }
+
+  Future<void> _fetchUserRole() async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) {
+      setState(() {
+        _role = "unknown";
+        _loadingRole = false;
+      });
+      return;
+    }
+
+    final doc = await FirebaseFirestore.instance.collection("users").doc(uid).get();
+    setState(() {
+      _role = doc.data()?["role"] ?? "unknown";
+      _loadingRole = false;
+    });
+  }
 
   void _filterAndSort() {
     List<Map<String, dynamic>> filtered = _allProducts.where((product) {
@@ -40,31 +93,6 @@ class _ProductListScreenState extends State<ProductListScreen> {
   }
 
   @override
-  void initState() {
-    super.initState();
-    FirebaseDatabase.instance.ref().child("products").onValue.listen((event) {
-      if (event.snapshot.value != null) {
-        final productsMap = Map<String, dynamic>.from(event.snapshot.value as Map);
-        final productsList = productsMap.entries.map((e) {
-          final val = Map<String, dynamic>.from(e.value);
-          val['id'] = e.key;
-          return val;
-        }).toList();
-
-        setState(() {
-          _allProducts = productsList;
-        });
-        _filterAndSort();
-      }
-    });
-
-    _searchController.addListener(() {
-      _searchQuery = _searchController.text;
-      _filterAndSort();
-    });
-  }
-
-  @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
@@ -78,6 +106,10 @@ class _ProductListScreenState extends State<ProductListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_loadingRole) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
     return Scaffold(
       backgroundColor: const Color(0xFFEFFAF0),
       appBar: AppBar(
@@ -85,6 +117,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
         title: const Text('All Products', style: TextStyle(color: Colors.white)),
         iconTheme: const IconThemeData(color: Colors.white),
       ),
+      drawer: StoreDrawer(role: _role ?? "unknown"),
       body: Column(
         children: [
           Padding(

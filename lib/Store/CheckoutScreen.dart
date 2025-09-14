@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:pawfectcare/Store/Store_Drawer.dart';
 import 'package:pawfectcare/Store/ThankYouScreen.dart';
 
 class CheckoutScreen extends StatefulWidget {
@@ -22,6 +23,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   String zip = '';
 
   bool isLoading = true;
+  String userRole = "unknown";
 
   @override
   void initState() {
@@ -30,12 +32,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   Future<void> fetchUserData() async {
-    final doc = await FirebaseFirestore.instance.collection('users').doc(user!.uid).get();
+    final doc =
+    await FirebaseFirestore.instance.collection('users').doc(user!.uid).get();
     final data = doc.data() ?? {};
 
     setState(() {
       name = data['name'] ?? '';
       email = data['email'] ?? '';
+      userRole = data['role'] ?? 'unknown';
       isLoading = false;
     });
   }
@@ -76,6 +80,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       'products': products,
       'totalPrice': totalPrice,
     });
+
     await FirebaseFirestore.instance
         .collection('carts')
         .doc(user!.uid)
@@ -86,29 +91,41 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         doc.reference.delete();
       }
     });
+
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (_) => const ThankYouScreen()),
     );
 
-
     ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Order placed successfully!")));
+      const SnackBar(content: Text("Order placed successfully!")),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    if (isLoading) return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    if (isLoading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Checkout')),
+      appBar: AppBar(
+        title: const Text('Checkout'),
+        backgroundColor: Colors.green,
+        foregroundColor: Colors.white,
+      ),
+      drawer: StoreDrawer(role: userRole), // 👈 role-based drawer
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Form(
           key: _formKey,
           child: Column(
             children: [
-              const Align(alignment: Alignment.centerLeft, child: Text("Customer Details", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
+              const Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text("Customer Details",
+                      style:
+                      TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
               const SizedBox(height: 20),
               TextFormField(
                 initialValue: name,
@@ -150,7 +167,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 validator: (val) => val!.isEmpty ? "Required" : null,
               ),
               const SizedBox(height: 30),
-              const Align(alignment: Alignment.centerLeft, child: Text("Payment Method", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
+              const Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text("Payment Method",
+                      style:
+                      TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
               const SizedBox(height: 15),
               Card(
                 color: Colors.green.shade100,
@@ -162,7 +183,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 ),
               ),
               const SizedBox(height: 30),
-              const Align(alignment: Alignment.centerLeft, child: Text("Order Summary", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
+              const Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text("Order Summary",
+                      style:
+                      TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
               const SizedBox(height: 10),
 
               // 🔥 Live Cart Summary
@@ -195,11 +220,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                             final d = doc.data() as Map<String, dynamic>;
                             return Padding(
                               padding: const EdgeInsets.only(bottom: 6),
-                              child: Text("${d['name']} x ${d['quantity']} = \$${(d['price'] * d['quantity']).toStringAsFixed(2)}"),
+                              child: Text(
+                                  "${d['name']} x ${d['quantity']} = \$${(d['price'] * d['quantity']).toStringAsFixed(2)}"),
                             );
                           }),
                           const Divider(),
-                          Text("Total: \$${total.toStringAsFixed(2)}", style: const TextStyle(fontWeight: FontWeight.bold)),
+                          Text("Total: \$${total.toStringAsFixed(2)}",
+                              style:
+                              const TextStyle(fontWeight: FontWeight.bold)),
                         ],
                       ),
                     ),
@@ -212,10 +240,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
                   padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)),
                   minimumSize: const Size.fromHeight(50),
                 ),
-                child: const Text("Place Order", style: TextStyle(color: Colors.white, fontSize: 16)),
+                child: const Text("Place Order",
+                    style: TextStyle(color: Colors.white, fontSize: 16)),
               ),
             ],
           ),
