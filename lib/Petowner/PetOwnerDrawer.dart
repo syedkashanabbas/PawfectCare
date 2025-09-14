@@ -49,7 +49,7 @@ class PetOwnerDrawer extends StatelessWidget {
                           : null,
                       child: imageUrl.isEmpty
                           ? const Icon(Icons.person,
-                              size: 30, color: Colors.white)
+                          size: 30, color: Colors.white)
                           : null,
                     ),
                     const SizedBox(height: 10),
@@ -67,6 +67,7 @@ class PetOwnerDrawer extends StatelessWidget {
             ),
           ),
 
+          // Other drawer items
           _drawerItem(context, Icons.dashboard, 'Dashboard', '/petownerdashboard'),
           _drawerItem(context, Icons.dashboard, 'Shop', '/storelist'),
           _drawerItem(context, Icons.notification_add, 'Notifications', '/notification'),
@@ -77,6 +78,9 @@ class PetOwnerDrawer extends StatelessWidget {
           _drawerItem(context, Icons.store, 'Pet Store', '/petstore'),
           _drawerItem(context, Icons.store, 'Available Pets', '/availablepets'),
           _drawerItem(context, Icons.article, 'Blogs', '/bloglist'),
+
+          // New "Assign Pet to Vet" option
+          _drawerItem(context, Icons.assignment, 'Assign Pet to Vet', '/assignPet'),
 
           const Divider(),
           ListTile(
@@ -105,3 +109,4 @@ class PetOwnerDrawer extends StatelessWidget {
     );
   }
 }
+
