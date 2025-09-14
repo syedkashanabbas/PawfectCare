@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class VetAssignmentScreen extends StatefulWidget {
   const VetAssignmentScreen({super.key});
@@ -18,85 +19,127 @@ class _VetAssignmentScreenState extends State<VetAssignmentScreen> {
     _loadAssignments();
   }
 
-  // Fetch pending assignments for the vet
+  // Fetch assignments for the logged-in vet
   Future<void> _loadAssignments() async {
     final vetId = FirebaseAuth.instance.currentUser?.uid;
-    if (vetId == null) return;
 
-    final snapshot = await FirebaseDatabase.instance
-        .ref('petAssignments')
-        .orderByChild('vetId')
-        .equalTo(vetId)
-        .get();
+    if (vetId == null) {
+      print("Error: No vet is logged in");
+      return;
+    }
 
-    if (snapshot.value != null) {
-      final assignmentsMap = Map<dynamic, dynamic>.from(snapshot.value as Map);
-      setState(() {
-        _assignments = assignmentsMap.entries.map((entry) {
-          return {
-            'id': entry.key,
-            'vetId': entry.value['vetId'],
-            'petId': entry.value['petId'],
-            'petName': entry.value['petName'],
-            'ownerId': entry.value['ownerId'],
-            'status': entry.value['status'],
-            'createdAt': entry.value['createdAt'],
-          };
-        }).toList();
-      });
+    print("Fetching assignments for vetId: $vetId");
+
+    try {
+      final snapshot = await FirebaseDatabase.instance
+          .ref('petAssignments')
+          .orderByChild('vetId')
+          .equalTo(vetId)
+          .get();
+
+      if (snapshot.exists) {
+        final assignmentsMap = Map<dynamic, dynamic>.from(snapshot.value as Map);
+        print("Assignments found: ${assignmentsMap.length}");  // Debug print
+
+        for (var entry in assignmentsMap.entries) {
+          final assignment = entry.value;
+
+          // Only proceed if the assignment's status is 'Pending'
+          if (assignment['status'] == 'Pending') {
+            final petId = assignment['petId'];
+
+            // Fetch the ownerId from the 'pets' table using the petId
+            final petSnapshot = await FirebaseDatabase.instance
+                .ref('pets')
+                .child(petId)
+                .get();
+
+            if (petSnapshot.exists) {
+              final petData = Map<String, dynamic>.from(petSnapshot.value as Map);
+              final ownerId = petData['ownerId'];
+
+              // Fetch the owner's name from the 'users' table
+              final ownerSnapshot = await FirebaseFirestore.instance
+                  .collection('users')
+                  .doc(ownerId)
+                  .get();
+
+              if (ownerSnapshot.exists) {
+                final ownerData = ownerSnapshot.data() as Map<String, dynamic>;
+                final ownerName = ownerData['name'];
+
+                setState(() {
+                  _assignments.add({
+                    'id': entry.key,
+                    'vetId': assignment['vetId'],
+                    'vetName': assignment['vetName'],
+                    'petId': assignment['petId'],
+                    'petName': assignment['petName'],
+                    'ownerId': ownerId,
+                    'ownerName': ownerName, // Add the owner's name here
+                    'status': assignment['status'],
+                  });
+                });
+              }
+            }
+          }
+        }
+      } else {
+        print("No assignments found for this vet");
+      }
+    } catch (e) {
+      print("Error fetching assignments: $e");
     }
   }
 
-  // Update the assignment status to 'Accepted' or 'Rejected'
+  // Accept or reject the assignment
   Future<void> _updateAssignmentStatus(String assignmentId, String status) async {
-    final ref = FirebaseDatabase.instance.ref('petAssignments/$assignmentId');
-    await ref.update({'status': status});
+    final assignmentRef = FirebaseDatabase.instance.ref('petAssignments/$assignmentId');
+    await assignmentRef.update({'status': status});
 
-    // Reload assignments after the update
-    _loadAssignments();
+    // Remove the assignment from the list if the status is changed
+    setState(() {
+      _assignments.removeWhere((assignment) => assignment['id'] == assignmentId);
+    });
+
+    print("Assignment status updated: $status");
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        title: const Text("Assigned Pets"),
         backgroundColor: const Color(0xFF4CAF50),
-        title: const Text("Vet Assignments"),
       ),
       body: _assignments.isEmpty
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: Text("No pending assignments"))
           : ListView.builder(
         itemCount: _assignments.length,
         itemBuilder: (context, index) {
           final assignment = _assignments[index];
-          final petName = assignment['petName'];
-          final status = assignment['status'];
-
           return Card(
-            margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            elevation: 4,
+            margin: const EdgeInsets.all(8.0),
             child: ListTile(
-              contentPadding: const EdgeInsets.all(16),
-              title: Text(petName, style: const TextStyle(fontWeight: FontWeight.bold)),
-              subtitle: Text('Status: $status'),
-              trailing: status == 'Pending'
-                  ? Row(
+              title: Text(assignment['petName'] ?? "Unknown Pet"),
+              subtitle: Text('Owner: ${assignment['ownerName']}'),
+              trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   IconButton(
                     icon: const Icon(Icons.check, color: Colors.green),
-                    onPressed: () => _updateAssignmentStatus(assignment['id'], 'Accepted'),
+                    onPressed: () {
+                      _updateAssignmentStatus(assignment['id'], 'Accepted');
+                    },
                   ),
                   IconButton(
-                    icon: const Icon(Icons.clear, color: Colors.red),
-                    onPressed: () => _updateAssignmentStatus(assignment['id'], 'Rejected'),
+                    icon: const Icon(Icons.cancel, color: Colors.red),
+                    onPressed: () {
+                      _updateAssignmentStatus(assignment['id'], 'Rejected');
+                    },
                   ),
                 ],
-              )
-                  : null,
+              ),
             ),
           );
         },
