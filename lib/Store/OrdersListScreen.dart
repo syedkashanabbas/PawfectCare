@@ -67,7 +67,8 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
       appBar: AppBar(
-        title: const Text("All Orders"),
+        title: const Text("All Orders", style: TextStyle(color: Colors.white),),
+        iconTheme: const IconThemeData(color: Colors.white),
         backgroundColor: const Color(0xFF4CAF50),
         elevation: 0,
       ),

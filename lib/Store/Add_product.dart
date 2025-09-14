@@ -219,9 +219,9 @@ class _ShelterUploadProductScreenState
                         height: 18,
                         child: CircularProgressIndicator(
                             strokeWidth: 2, color: Colors.white))
-                        : const Icon(Icons.upload),
+                        : const Icon(Icons.upload, color: Colors.white,),
                     label: Text(_loading ? "Uploading..." : "Upload",
-                        style: const TextStyle(fontSize: 16)),
+                        style: const TextStyle(fontSize: 16, color: Colors.white)),
                   ),
                 ],
               ),
