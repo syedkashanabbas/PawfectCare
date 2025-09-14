@@ -30,7 +30,7 @@ class ShelterDrawer extends StatelessWidget {
           _buildItem(context, Icons.add_box, 'Add Adoption Pets', '/add_editlisting'),
           _buildItem(context, Icons.article, 'Adoption Pet List', '/admin_petlisting'),
           _buildItem(context, Icons.assignment_ind, 'Adoption Requests', '/adoption'),
-          _buildItem(context, Icons.emoji_emotions, 'Success Stories', '/successstory'),
+          _buildItem(context, Icons.emoji_emotions, ' Add Success Stories', '/successstory'),
           // _buildItem(context, Icons.edit_note, 'Add Story', '/addstory'),
           _buildItem(context, Icons.volunteer_activism, 'Volunteer Form', '/volunteer'),
           _buildItem(context, Icons.attach_money, 'Donation Form', '/donation'),
