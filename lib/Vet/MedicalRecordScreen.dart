@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pawfectcare/Vet/VetDrawer.dart';
 
 class MedicalRecordScreen extends StatelessWidget {
   const MedicalRecordScreen({super.key});
@@ -28,6 +29,7 @@ class MedicalRecordScreen extends StatelessWidget {
         ),
         iconTheme: const IconThemeData(color: Colors.white),
       ),
+      drawer: const VetDrawer(),
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: const Color(0xFF4CAF50),
         onPressed: () {

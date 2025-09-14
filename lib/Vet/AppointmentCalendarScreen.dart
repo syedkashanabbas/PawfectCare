@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pawfectcare/Vet/VetDrawer.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -235,6 +236,7 @@ class _AppointmentCalendarScreenState extends State<AppointmentCalendarScreen> {
         title: const Text('Appointments', style: TextStyle(color: Colors.white)),
         iconTheme: const IconThemeData(color: Colors.white),
       ),
+      drawer: const VetDrawer(),
       body: Column(
         children: [
           TableCalendar(

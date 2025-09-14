@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pawfectcare/Vet/VetDrawer.dart';
 
 class AssignedPetsScreen extends StatelessWidget {
   const AssignedPetsScreen({super.key});
@@ -36,6 +37,7 @@ class AssignedPetsScreen extends StatelessWidget {
         ),
         iconTheme: const IconThemeData(color: Colors.white),
       ),
+      drawer: const VetDrawer(),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: ListView.builder(

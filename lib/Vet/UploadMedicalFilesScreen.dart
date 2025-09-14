@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:pawfectcare/Vet/VetDrawer.dart';
 
 class UploadMedicalFilesScreen extends StatefulWidget {
   const UploadMedicalFilesScreen({super.key});
@@ -35,6 +36,7 @@ class _UploadMedicalFilesScreenState extends State<UploadMedicalFilesScreen> {
         ),
         iconTheme: const IconThemeData(color: Colors.white),
       ),
+      drawer: const VetDrawer(),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(

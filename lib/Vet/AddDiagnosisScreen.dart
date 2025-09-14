@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:pawfectcare/Vet/VetDrawer.dart';
 
 class AddDiagnosisScreen extends StatefulWidget {
   final String petId; // This should be passed from the previous screen
@@ -39,6 +40,7 @@ class _AddDiagnosisScreenState extends State<AddDiagnosisScreen> {
         ),
         iconTheme: const IconThemeData(color: Colors.white),
       ),
+      drawer: const VetDrawer(),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Form(
